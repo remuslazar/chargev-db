@@ -22,7 +22,6 @@ export MONGODB_URI=mongodb://$(docker-machine ip default)/chargevdb
 Create a `.env` file:
 
 ```
-GE_API_KEY=<here your GE API Key>
 BASIC_AUTH_USERNAME=<basic auth username>
 BASIC_AUTH_PASSWORD=<basic auth password (plaintext)>
 CLOUDKIT_KEY_ID=<here your cloudkit key>

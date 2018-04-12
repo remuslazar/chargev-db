@@ -11,13 +11,11 @@ import {rootController} from './controllers/root.controller';
 import {apiController} from "./controllers/api.controller";
 import {chargeeventsController} from "./controllers/chargeevents.controller";
 import {AppRequest} from "./auth/jwt-auth.middleware";
-import {GE_API_KEY} from "../goingElectric/ge.constants";
 
 export const app: express.Application = express();
 
 dotenv.config();
 
-app.set(GE_API_KEY, process.env[GE_API_KEY]);
 app.set(API_JWT_SECRET, process.env[API_JWT_SECRET]);
 
 let basicAuthUsers = {} as any;
@@ -103,6 +101,5 @@ mongoose.connection.on("error", () => {
 
 app.listen(port, () => {
   // Success callback
-  console.log(`Using GE API-Key: ${app.get('GE_API_KEY')}`);
   console.log(`Listening at http://localhost:${port}/`);
 });
