@@ -122,6 +122,33 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
 
 });
 
+/**
+ * fetch latest inserted (own) record
+ */
+router.get('/events/latest', async (req: AppRequest, res: Response, next: NextFunction) => {
+  const conditions: any[] = [];
+
+  setReadACLs(req.clientInfo, conditions);
+
+  conditions.push({source: req.clientInfo.source});
+
+  try {
+    const queryConditions = { $and: conditions };
+    const query = ChargeEvent.findOne(queryConditions)
+        .populate('user', 'nickname recordName')
+        .sort({'updatedAt': -1});
+    const latestEvent = await query;
+    if (!latestEvent) {
+      return next(); // throw a 404 error
+    }
+
+    return res.json(latestEvent.toObject({virtuals: true, versionKey: false}));
+  } catch (err) {
+    next(err);
+  }
+
+});
+
 // noinspection JSUnusedGlobalSymbols
 export interface PostEventsPayload {
   recordsToSave?: any[],
