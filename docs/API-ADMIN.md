@@ -7,7 +7,7 @@ The `ChargeEvent` API uses JWT for authentication.
 Valid tokens can be created by using the CLI:
 
 ```bash
-./api-cli.ts --generate --source 10 --sources 0 --sources 1 --client fooClient 
+./api-cli.ts --generate --source 10 --type CheckIn --sources 0 --sources 1 --client fooClient 
 ```
 
 This will generate a new token for a client names `fooClient` and select both sources 0 and 1.

@@ -4,6 +4,7 @@ export interface APIClientInfo {
   /** A short string identifying the client */
   clientID: string;
   source: number;
+  type: string; // which ChargeEvent type to use, e.g. "CheckIn", "Ladelog"
   acl: {
     /** ChargeEvent.source filter. List all allowed sources here */
     sources?: number[];

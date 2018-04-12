@@ -1,8 +1,8 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {Error} from "../server";
-import {ChargeEvent, CheckIn} from "../models/chargeevent.model";
+import {ChargeEvent, CheckIn, Ladelog} from "../models/chargeevent.model";
 import {AppRequest, jwtAuth} from "../auth/jwt-auth.middleware";
-import {ValidationError} from "mongoose";
+import {Model, ValidationError} from "mongoose";
 import {ObjectID} from "bson";
 import {APIClientInfo} from "../auth/jwt-auth.service";
 
@@ -138,17 +138,31 @@ router.post('/events', async (req: AppRequest, res: Response, next: NextFunction
   try {
     const eventsPayload = req.body as PostEventsPayload;
 
+    let ChargeEventType: Model<any>;
+    switch (req.clientInfo.type) {
+      case 'CheckIn':
+        ChargeEventType = CheckIn;
+        break;
+      case 'Ladelog':
+        ChargeEventType = Ladelog;
+        break;
+      default:
+        // noinspection ExceptionCaughtLocallyJS
+        throw new Error(`ChargeEvent type: ${req.clientInfo.type} not valid`);
+    }
+
     const writeConditions: any[] = [];
     setWriteACLs(req.clientInfo, writeConditions);
 
     let savedRecords: any[] = [];
     if (eventsPayload.recordsToSave) {
-      const checkInsToSave = eventsPayload.recordsToSave.map(eventData => {
-        const newCheckIn = new CheckIn(eventData);
-        newCheckIn.source = req.clientInfo.source;
-        return newCheckIn;
+      const eventsToSave = eventsPayload.recordsToSave.map(eventData => {
+
+        const newChargeEvent = new ChargeEventType(eventData);
+        newChargeEvent.source = req.clientInfo.source;
+        return newChargeEvent;
       });
-      const insertedCheckIns = await CheckIn.insertMany(checkInsToSave);
+      const insertedCheckIns = await ChargeEventType.insertMany(eventsToSave);
       savedRecords = insertedCheckIns.map($0 => $0.toObject());
     }
 
@@ -157,7 +171,7 @@ router.post('/events', async (req: AppRequest, res: Response, next: NextFunction
     if (eventsPayload.recordIDsToDelete) {
       const objectIDsToDelete = eventsPayload.recordIDsToDelete.map($0 => new ObjectID($0));
       writeConditions.push({ _id: { $in: objectIDsToDelete } });
-      const response = await CheckIn.update(
+      const response = await ChargeEventType.update(
           { $and: writeConditions },
           {deleted: true, modifiedAt: Date.now()},
           { multi: true }

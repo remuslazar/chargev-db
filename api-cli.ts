@@ -18,9 +18,12 @@ const main = async() => {
     let sources = argv.sources;
     if (!(sources instanceof Array)) { sources = [sources]; }
 
+    const type = argv['type'];
+
     const clientInfo = <APIClientInfo>{
       clientID: argv['client'],
       source: source,
+      type: type,
       acl: {
         sources: sources,
       }
