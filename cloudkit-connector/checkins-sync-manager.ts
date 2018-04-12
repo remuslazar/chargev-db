@@ -1,4 +1,4 @@
-import {CheckIn, CKCheckIn, ICheckIn, Point} from "../app/models/checkin.model";
+import {CheckIn, CKCheckIn, ICheckIn, Point} from "../app/models/chargeevent.model";
 import * as cloudkit from '../cloudkit';
 import {CKUser, getCKUserFromCKRecord} from "../app/models/ck-user.model";
 

@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {ChargeEvent} from "../models/checkin.model";
+import {ChargeEvent} from "../models/chargeevent.model";
 
 const router: Router = Router();
 

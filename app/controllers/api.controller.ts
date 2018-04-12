@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {Error} from "../server";
-import {ChargeEvent, CheckIn} from "../models/checkin.model";
+import {ChargeEvent, CheckIn} from "../models/chargeevent.model";
 import {AppRequest, jwtAuth} from "../auth/jwt-auth.middleware";
 import {ValidationError} from "mongoose";
 import {ObjectID} from "bson";
