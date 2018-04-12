@@ -27,7 +27,9 @@ const main = async () => {
       if (argv['delta-download']) {
         const manager = new CheckInsSyncManager();
         const updatedCheckIns = await manager.syncCheckInsFromCloudKit(argv['purge']);
-        await manager.syncUsersFromCloudKit(updatedCheckIns, argv['purge']);
+        if (updatedCheckIns.length > 0) {
+          await manager.syncUsersFromCloudKit(updatedCheckIns, argv['purge']);
+        }
       }
 
     }
