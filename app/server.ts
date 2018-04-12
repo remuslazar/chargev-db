@@ -45,7 +45,7 @@ app.use(logger(':method :url :status :response-time ms - :res[content-length] :j
 app.set('view engine', 'jade');
 app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 app.use('/api/v1', apiController);
 
 app.use('/events', auth, chargeeventsController);
