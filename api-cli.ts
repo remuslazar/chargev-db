@@ -25,7 +25,7 @@ const main = async() => {
       source: source,
       type: type,
       acl: {
-        sources: sources,
+        sources: argv.sources !== undefined ? sources : undefined,
       }
     };
 
