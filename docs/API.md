@@ -300,7 +300,7 @@ export token=<my token>
 #### Request
 
 ```bash
-$ curl -qs -H "Authorization: Bearer $token" https://ge-tools.herokuapp.com/api/v1/events/?limit=3 | json_pp
+$ curl -qs -H "Authorization: Bearer $token" https://chargev-db.herokuapp.com/api/v1/events/?limit=3 | json_pp
 ```
 
 #### Response
@@ -414,7 +414,7 @@ $ curl -qs -H "Authorization: Bearer $token" https://ge-tools.herokuapp.com/api/
 ##### curl call
 
 ```bash
-curl -qs -H "Authorization: Bearer ${token}" -XPOST -H"Content-type: Application/json" -d@post-payload.json http://localhost:3000/api/v1/events | json_pp
+curl -qs -H "Authorization: Bearer $token" -XPOST -H"Content-type: Application/json" -d@post-payload.json http://localhost:3000/api/v1/events | json_pp
 ```
 
 ##### Response
