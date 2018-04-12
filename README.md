@@ -43,6 +43,20 @@ This App is currently deployed on Heroku:
 
 https://dashboard.heroku.com/apps/chargev-db
 
+### CloudKit PEM Key
+
+Make sure you create a config var for the PEM file:
+
+```bash
+heroku config:add CLOUDKIT_PRIVATE_KEY_FILE="$(cat eckey.pem)"
+```
+
+Then use the supplied targets in `package.json` to create the key file on the local filesystem:
+
+```bash
+npm run create-cloudkit-key
+```
+
 ### Get the current MongoDB Dump
 
 Get the current connect Link from mLab (see "installed add-ons" in the Overview section).
