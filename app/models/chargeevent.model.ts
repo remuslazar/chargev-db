@@ -201,4 +201,5 @@ export const CKCheckIn: Model<ICheckIn> = ChargeEvent.discriminator('CKCheckIn',
 export const CheckIn: Model<ICheckIn> = ChargeEvent.discriminator('CheckIn', checkInSchema);
 export const Ladelog: Model<ILadelog> = ChargeEvent.discriminator('Ladelog', ladelogSchema);
 // deleted records will be of this type
+// noinspection JSUnusedGlobalSymbols
 export const ChargeEventFault: Model<IChargeEventFault> = ChargeEvent.discriminator('ChargeEventFault', chargeEventFault);
