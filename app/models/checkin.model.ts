@@ -39,7 +39,7 @@ export interface ChargeEventFault {
   deleted: true;
 }
 
-interface CheckIn extends CKRecord, ChargeEventBase {
+export interface CheckIn extends CKRecord, ChargeEventBase {
   reason: number;
   plug?: string;
 }
@@ -47,31 +47,6 @@ interface CheckIn extends CKRecord, ChargeEventBase {
 export interface Ladelog extends ChargeEventBase {
   modified: Date;
   isFault: boolean;
-}
-
-export function getCheckInFromCKRecord(record: any) {
-
-  function getValue(fieldName: string) {
-    if (fieldName in record.fields) {
-      return record.fields[fieldName].value;
-    }
-    return null;
-  }
-
-  return <CheckIn>{
-    recordName: record.recordName,
-    recordChangeTag: record.recordChangeTag,
-    created: record.created,
-    modified: record.modified,
-    deleted: record.deleted,
-    source: getValue('source'),
-    timestamp: new Date(getValue('timestamp')),
-    reason: getValue('reason'),
-    comment: getValue('comment'),
-    plug: getValue('plug'),
-    chargepoint: getValue('chargepoint').recordName,
-    location: new Point(getValue('location')),
-  };
 }
 
 export interface ICheckIn extends CheckIn, Document {
