@@ -1,0 +1,7 @@
+node_modules
+*~
+/build
+.idea/workspace.xml
+/cloudkit/vendor
+.env
+eckey.pem

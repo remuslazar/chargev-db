@@ -1,0 +1,16 @@
+body {
+  margin: 1em;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+p.footer {
+  text-align: right;
+}
+
+table.app-chargeevents tr.deleted {
+  text-decoration: line-through;
+  color: darkgray;
+}

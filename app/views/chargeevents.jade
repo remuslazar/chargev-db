@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  h1 ChargeEvent (#{count})
+  table.app-chargeevents
+    thead
+      tr
+        th source
+        th ID
+        th Type
+        th Timestamp
+        th Result
+        th plug
+        th comment
+        th nickname
+        th chargepoint
+        th location
+    tbody
+      for event in events
+        tr(class=event.deleted === true ? 'deleted' : '')
+          td= event.source
+          td= event.id
+          td= event.__t
+          td= moment(event.timestamp).format('lll')
+          td= event.reason ? "Reason Code: "+event.reason : event.isFault ? "FAULT" : "OK"
+          td= event.plug ? event.plug : "n.a."
+          td= event.comment
+          td= event.nickname
+          td= event.chargepoint
+          td= JSON.stringify(event.location)
