@@ -1,9 +1,9 @@
 #!/usr/bin/env ts-node
 
 import * as dotenv from 'dotenv';
-import * as cloudkit from './cloudkit';
 import * as mongoose from "mongoose";
 import {CheckInsSyncManager} from "./cloudkit-connector/checkins-sync-manager";
+import {CloudKitService} from "./cloudkit/cloudkit-service";
 
 dotenv.config();
 const argv = require('minimist')(process.argv.slice(2));
@@ -19,13 +19,20 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://mongodb/ge', {
 const main = async () => {
   try {
     if (argv['cloudkit']) {
-      const userInfo = await cloudkit.setup();
+      const service = new CloudKitService();
+      const userInfo = await service.setup();
+
+      if (!userInfo) {
+        // noinspection ExceptionCaughtLocallyJS
+        throw new Error(`setup CloudKit failed`);
+      }
+
       console.error(`CloudKit [${process.env.CLOUDKIT_ENV}] Login OK, userRecordName: ${userInfo.userRecordName}`);
-      const timestamp = await cloudkit.getLastTimestamp(userInfo.userRecordName);
+      const timestamp = await service.getLastTimestamp(userInfo.userRecordName);
       console.error(`Newest CheckIn in CloudKit: ${timestamp}`);
 
       if (argv['delta-download']) {
-        const manager = new CheckInsSyncManager();
+        const manager = new CheckInsSyncManager(service);
         const updatedCheckIns = await manager.syncCheckInsFromCloudKit(argv['purge']);
         if (updatedCheckIns.length > 0) {
           await manager.syncUsersFromCloudKit(updatedCheckIns, argv['purge']);

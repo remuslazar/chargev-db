@@ -1,8 +1,13 @@
 import {CheckIn, CKCheckIn, ICheckIn, Point} from "../app/models/chargeevent.model";
-import * as cloudkit from '../cloudkit';
 import {CKUser, getCKUserFromCKRecord} from "../app/models/ck-user.model";
+import {CloudKitService} from "../cloudkit/cloudkit-service";
+import * as CloudKit from "tsl-apple-cloudkit";
 
 export class CheckInsSyncManager {
+
+  constructor(private service: CloudKitService) {
+
+  }
 
   private getCheckInFromCKRecord(record: any) {
 
@@ -37,7 +42,7 @@ export class CheckInsSyncManager {
         filterBy: [
           {
             fieldName: "___modTime",
-            comparator: "GREATER_THAN",
+            comparator: CloudKit.QueryFilterComparator.GREATER_THAN,
             fieldValue: {value: newestTimestamp},
           }
         ],
@@ -49,7 +54,7 @@ export class CheckInsSyncManager {
 
       const chargepointRefs: any[] = [];
 
-      await cloudkit.find(query, options, async (records: any[]) => {
+      await this.service.find(query, options, async (records: any[]) => {
         // console.log(JSON.stringify(records, null, 4));
         for (let record of records) {
           chargepointRefs.push(record.recordName);
@@ -64,10 +69,10 @@ export class CheckInsSyncManager {
         recordType: 'CheckIns',
         filterBy: [
           {
-            comparator: "IN",
+            comparator: CloudKit.QueryFilterComparator.IN,
             fieldName: "chargepoint",
             fieldValue: {
-              value: chargepoints.map(ref => { return { recordName: ref } }),
+              value: chargepoints.map($0 => <any>{recordName: $0}),
             },
           }
         ],
@@ -79,7 +84,7 @@ export class CheckInsSyncManager {
 
       const recordNames: string[] = [];
 
-      await cloudkit.find(query, options, async (records: any[]) => {
+      await this.service.find(query, options, async (records: any[]) => {
         // console.log(JSON.stringify(records, null, 4));
         for (let record of records) {
           recordNames.push(record.recordName);
@@ -151,7 +156,7 @@ export class CheckInsSyncManager {
 
     const updatedCheckIns: any[] = [];
 
-    await cloudkit.find(query, options, async (records: any[]) => {
+    await this.service.find(query, options, async (records: any[]) => {
       // console.log(JSON.stringify(records, null, 4));
       let count = 0;
       for (let record of records) {
@@ -178,7 +183,8 @@ export class CheckInsSyncManager {
 
     const allUserRecordNames = new Set(checkIns.map(checkIn => checkIn.modified.userRecordName));
 
-    await cloudkit.get(Array.from(allUserRecordNames), {}, async (records: any[]) => {
+    await this.service.get(Array.from(allUserRecordNames).map($0 => { return { recordType: 'User', recordName: $0}}),
+        {}, async (records: any[]) => {
       // console.log(JSON.stringify(records, null, 4));
       let count = 0;
       for (let record of records) {
