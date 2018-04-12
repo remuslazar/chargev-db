@@ -5,3 +5,4 @@ node_modules
 /cloudkit/vendor
 .env
 eckey.pem
+/scratch
