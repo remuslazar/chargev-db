@@ -183,8 +183,6 @@ ladelogSchema.set('toObject', {
     delete ret.createdAt;
     delete ret.updatedAt;
 
-    delete ret.modified;
-
     return ret;
   }
 });
