@@ -8,7 +8,7 @@ export class CloudKitService {
   private container: Container;
   private database: Database;
 
-  setup() {
+  async setup() {
     const containerConfig = require('./config');
 
     const fetch = require('node-fetch');
@@ -25,11 +25,11 @@ export class CloudKitService {
     this.container = (<any>CloudKit).getDefaultContainer();
     this.database = this.container.publicCloudDatabase; // We'll only make calls to the public database.
 
-    return this.container.setUpAuth();
+    return await this.container.setUpAuth();
   };
 
-  getLastTimestamp(userRecordName: string) {
-    return this.database.performQuery({
+  async getLastTimestamp(userRecordName: string) {
+    return await this.database.performQuery({
       recordType: 'CheckIns',
       filterBy: [
         {
@@ -66,7 +66,6 @@ export class CloudKitService {
       await cb(response.records);
     }
   };
-
 
   async get(recordNames: RecordLike[], options: any, cb: any) {
     try {
