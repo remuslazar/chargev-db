@@ -303,8 +303,40 @@ export class CheckInsSyncManager {
         console.log(`checkin`);
       }
     }
+  }
 
-
+  /**
+   * Purge all available records in CloudKit which originally were synchronized from the local database
+   *
+   * Useful for debugging or maintenance.
+   *
+   * @returns {Promise<void>}
+   */
+  public async purgeCheckInsInCloudKitOriginallySynchronizedFromLocalDatabase() {
+    await this.service.find({
+      recordType: 'CheckIns',
+      filterBy: [
+        {
+          systemFieldName: 'createdUserRecordName',
+          comparator: CloudKit.QueryFilterComparator.EQUALS,
+          fieldValue: {
+            value: {
+              recordName: this.service.userRecordName,
+            }
+          }
+        },
+        {
+          fieldName: "source",
+          comparator: CloudKit.QueryFilterComparator.IN,
+          fieldValue: {value: allSourcesOtherThanChargEVSource},
+        }
+      ],
+    }, {desiredKeys: ['recordName']}, async (records: any[]) => {
+      if (records.length > 0) {
+        await this.service.delete(records.map($0 => $0.recordName));
+        console.log(`deleted ${records.length} record(s)`);
+      }
+    });
   }
 
 }

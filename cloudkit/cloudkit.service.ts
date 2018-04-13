@@ -12,7 +12,7 @@ export class CloudKitService {
   private database: any;
 
   // currently logged in user (server-to-server)
-  protected userRecordName: string|null = null;
+  public userRecordName: string|null = null;
 
   async setup() {
     const fetch = require('node-fetch');
@@ -170,4 +170,21 @@ export class CloudKitService {
       }
     }
   };
+
+  async delete(recordNames: any[]) {
+    try {
+      await this.database.deleteRecords(recordNames);
+    } catch(error) {
+      if (error.ckErrorCode === 'BAD_REQUEST' && recordNames.length >= 2) {
+        // BadRequestException: array 'records' length is greater than max size
+        const howMany = recordNames.length / 2;
+        // split the records array in half and recurse
+        const remaining = recordNames.splice(0, howMany);
+        await this.delete(recordNames);
+        await this.delete(remaining);
+      } else {
+        throw error;
+      }
+    }
+  }
 }

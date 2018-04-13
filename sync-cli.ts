@@ -29,6 +29,11 @@ const main = async () => {
 
       console.error(`CloudKit [${process.env.CLOUDKIT_ENV}] Login OK, userRecordName: ${userInfo.userRecordName}`);
 
+      if (argv['purge']) {
+        const manager = new CheckInsSyncManager(service, argv['dry-run']);
+        await manager.purgeCheckInsInCloudKitOriginallySynchronizedFromLocalDatabase();
+      }
+
       if (argv['delta-download']) {
         const timestamp = await service.getchargEVCheckInLastTimestamp();
         console.error(`Newest CheckIn in CloudKit: ${timestamp}`);
