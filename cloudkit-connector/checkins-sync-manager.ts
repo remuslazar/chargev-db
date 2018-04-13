@@ -183,7 +183,11 @@ export class CheckInsSyncManager {
         await CKCheckIn.findOneAndUpdate({recordName: record.recordName}, checkIn, {upsert: true});
         count++;
       }
-      console.log('Sync CloudKit CheckIns: %d record(s) processed.', count);
+      if (count) {
+        console.log('Sync CloudKit CheckIns: %d record(s) processed.', count);
+      } else {
+        console.log(`No new CheckIns in CloudKit available for download, nothing to do.`);
+      }
     });
 
     if (!purge && newestTimestamp) {
@@ -280,7 +284,7 @@ export class CheckInsSyncManager {
         await this.service.getLastTimestampOfSynchronizedRecord(allSourcesOtherThanChargEVSource);
 
     if (timestampOfLastInsertedRecord) {
-      console.log(`newest timestamp from CloudKit: ${timestampOfLastInsertedRecord.toISOString()}`);
+      console.log(`Newest timestamp of synchronized CheckIn from local database in CloudKit: ${timestampOfLastInsertedRecord.toISOString()}`);
     }
 
     const conditions = <any>{

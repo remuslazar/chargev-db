@@ -36,9 +36,9 @@ const main = async () => {
       }
 
       if (argv['delta-download']) {
-        console.log(`CloudKit Delta-Download`);
+        console.log(`# CloudKit Delta-Download`);
         const timestamp = await service.getchargEVCheckInLastTimestamp();
-        console.error(`Newest CheckIn in CloudKit: ${timestamp}`);
+        console.error(`Newest CheckIn (from chargEV Users) in CloudKit: ${timestamp}`);
 
         const manager = new CheckInsSyncManager(service, argv['dry-run']);
         const updatedCheckIns = await manager.syncCheckInsFromCloudKit(argv['purge']);
@@ -48,10 +48,14 @@ const main = async () => {
       }
 
       if (argv['delta-upload']) {
-        console.log(`CloudKit Delta-Upload`);
+        console.log(`# CloudKit Delta-Upload`);
         const manager = new CheckInsSyncManager(service, argv['dry-run']);
         const totalCount = await manager.createCheckInsInCloudKitForNewChargeEvents();
-        console.log(`Total count: ${totalCount}`);
+        if (totalCount > 0) {
+          console.log(`${totalCount} CheckIn(s) uploaded to CloudKit`);
+        } else {
+          console.log(`No new CheckIns for upload to CloudKit available, nothing to do.`);
+        }
       }
 
     }
