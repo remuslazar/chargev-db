@@ -1,26 +1,10 @@
 import {Document, Model, model, Schema} from 'mongoose';
-import {CKLocation, CKRecord} from "./cloudkit.types";
+import {CKRecord} from "./cloudkit.types";
 import {CKUser} from "./ck-user.model";
 
 export interface MongooseTimestamps {
   createdAt: Date;
   updatedAt: Date;
-}
-
-// see https://en.wikipedia.org/wiki/GeoJSON
-export interface GeoJSON {
-  type: string;
-  coordinates: number[];
-}
-
-export class Point implements GeoJSON {
-  type: string;
-  coordinates: number[];
-
-  constructor(location: CKLocation) {
-    this.type = 'Point';
-    this.coordinates = [location.latitude, location.longitude];
-  }
 }
 
 export enum ChargeEventSource {
@@ -36,7 +20,6 @@ export interface ChargeEventBase extends MongooseTimestamps {
   source: ChargeEventSource;
   timestamp: Date;
   chargepoint: string; // e.g. chargepoint-0-3358
-  location: GeoJSON;
   comment: string;
   nickname?: string;
   userID?: string;
@@ -81,18 +64,6 @@ const chargeEventSchema = new Schema({
     }
   },
   comment: String,
-  location: { type: <GeoJSON>{}, required: true, validate: {
-      validator: function(v: any) {
-        if (!v.type || !v.coordinates) { return false; }
-        if (v.type !== 'Point') { return false; }
-        if (v.coordinates.length !== 2) { return false; }
-        // noinspection RedundantIfStatementJS
-        if (!(v.coordinates[0].toFixed && v.coordinates[1].toFixed)) { return false; }
-
-        return true;
-      },
-    }
-  },
   nickname: String,
 }, {timestamps: true});
 
