@@ -24,8 +24,17 @@ export class Point implements GeoJSON {
   }
 }
 
+export enum ChargeEventSource {
+  cloudKit = 0,
+  goingElectric = 1,
+}
+
+export const allSourcesOtherThanChargEVSource = [
+    ChargeEventSource.goingElectric,
+];
+
 export interface ChargeEventBase extends MongooseTimestamps {
-  source: number;
+  source: ChargeEventSource;
   timestamp: Date;
   chargepoint: string; // e.g. chargepoint-0-3358
   location: GeoJSON;
