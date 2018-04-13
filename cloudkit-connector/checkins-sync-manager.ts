@@ -4,7 +4,6 @@ import {
   CheckIn,
   CKCheckIn,
   ICheckIn,
-  Point
 } from "../app/models/chargeevent.model";
 import {CKUser, getCKUserFromCKRecord} from "../app/models/ck-user.model";
 import * as CloudKit from "../cloudkit/vendor/cloudkit";
@@ -37,7 +36,6 @@ export class CheckInsSyncManager {
       comment: getValue('comment'),
       plug: getValue('plug'),
       chargepoint: getValue('chargepoint').recordName,
-      location: new Point(getValue('location')),
     };
   }
 
