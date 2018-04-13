@@ -114,7 +114,7 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
       startToken: startToken,
       changeToken: changeToken,
       events: events
-          .map(event => event.toObject({virtuals: true, versionKey: false}))
+          .map(event => event.toObject({virtuals: true, versionKey: false, minimize: false}))
     });
   } catch (err) {
     next(err);
