@@ -1,6 +1,5 @@
 import {Document, Model, model, Schema} from 'mongoose';
-import {CKLocation} from "../../cloudkit/checkin.interface";
-import {CKRecord} from "./cloudkit.types";
+import {CKLocation, CKRecord} from "./cloudkit.types";
 import {CKUser} from "./ck-user.model";
 
 export interface MongooseTimestamps {

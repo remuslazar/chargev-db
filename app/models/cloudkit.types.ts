@@ -11,3 +11,8 @@ export interface CKRecord {
   created: CKTimestamp;
   modified: CKTimestamp;
 }
+
+export interface CKLocation {
+  latitude: number;
+  longitude: number;
+}
