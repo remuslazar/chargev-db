@@ -114,7 +114,7 @@ class GELocation implements CKLocation {
   }
 }
 
-export class CKCheckFromLadelog implements CKCheckIn {
+export class CKCheckInFromLadelog implements CKCheckIn {
   fields: {
     chargepoint: CKRef;
     comment?: CKField<string>;
@@ -147,7 +147,6 @@ export class CKCheckFromLadelog implements CKCheckIn {
     return `CheckIn [reason: ${this.fields.reason.value}, timestamp: ${new Date(this.fields.timestamp.value as number)}]`;
   }
 }
-
 
 export class GEChargepoint implements CKChargePoint {
 

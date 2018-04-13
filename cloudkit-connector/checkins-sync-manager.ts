@@ -12,7 +12,7 @@ import {CloudKitService} from "../cloudkit/cloudkit.service";
 import {
   ChargepointInfo,
   ChargepointRef,
-  CKCheckFromLadelog,
+  CKCheckInFromLadelog,
   CKCheckInReason, EVPlugFinderRegistry,
   GEChargepoint
 } from "./evplugfinder.model";
@@ -218,7 +218,7 @@ export class CheckInsSyncManager {
     const chargepointRef = new ChargepointRef(ladelog.chargepoint);
 
     const lastCheckIn = await this.service.getLastCheckIn(chargepointRef);
-    const ckCheckInToInsert = new CKCheckFromLadelog(ladelog);
+    const ckCheckInToInsert = new CKCheckInFromLadelog(ladelog);
 
     // check if the lastCheckin is newer than the CheckIn we want to insert
     if (lastCheckIn && lastCheckIn.fields.timestamp && lastCheckIn.fields.timestamp.value >= ckCheckInToInsert.fields.timestamp.value) {
