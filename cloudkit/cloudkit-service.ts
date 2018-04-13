@@ -90,7 +90,7 @@ export class CloudKitService {
       ],
       sortBy: [
         {
-          systemFieldName: "createdTimestamp",
+          systemFieldName: "modifiedTimestamp",
           ascending: false
         }
       ],
