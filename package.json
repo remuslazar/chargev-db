@@ -11,7 +11,7 @@
     "prestart": "tsc",
     "ts-node": "ts-node",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install-cloudkit-js": "mkdir -p cloudkit/vendor ; curl -qs https://cdn.apple-cloudkit.com/ck/2/cloudkit.js > cloudkit/vendor/cloudkit.js",
+    "install-cloudkit-js": "mkdir -p cloudkit/vendor ; curl -qs https://cdn.apple-cloudkit.com/ck/1/cloudkit.js > cloudkit/vendor/cloudkit.js",
     "create-cloudkit-key": "echo \"$CLOUDKIT_PRIVATE_KEY_FILE\" > cloudkit/eckey.pem",
     "start": "node build/app/server.js",
     "cloudkit-sync": "ts-node ./sync-cli.ts --cloudkit --delta-download"
@@ -62,7 +62,6 @@
     "@types/node": "^8.0.26",
     "@types/request": "^2.0.3",
     "@types/request-promise": "^4.1.37",
-    "tsl-apple-cloudkit": "^0.2.14",
     "typings": "^2.1.1"
   }
 }
