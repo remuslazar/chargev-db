@@ -137,7 +137,6 @@ export interface ChargeEventBase {
   source: number;
   timestamp: Date;
   chargepoint: string; // e.g. chargepoint-0-3358
-  location: GeoJSON;
   comment?: string;
   nickname?: string;
   userID?: string;
@@ -185,21 +184,6 @@ The second part, `chargepointID` is the identifier of the chargepoint in context
 ##### Example:
 
 A `chargepoint` identifier like `chargepoint-0-20312` means the GoingElectric ChargePoint with the ID 20312.
-
-#### `location`
-
-The current location of the chargepoint, basically copied 1:1 from the chargepoint as the
-event has been created. The Structure here is:
-
-```typescript
-// see https://en.wikipedia.org/wiki/GeoJSON
-export interface GeoJSON {
-  type: string;
-  coordinates: number[];
-}
-```
-
-See https://en.wikipedia.org/wiki/GeoJSON for details.
 
 #### `comment`
 
@@ -314,13 +298,6 @@ $ curl -qs -H "Authorization: Bearer $token" https://chargev-db.herokuapp.com/ap
    "events" : [
       {
          "source" : null,
-         "location" : {
-            "coordinates" : [
-               52.548534,
-               13.412196
-            ],
-            "type" : "Point"
-         },
          "chargepoint" : "chargepoint-0-23830",
          "reason" : 10,
          "plug" : "Type2",
@@ -339,23 +316,9 @@ $ curl -qs -H "Authorization: Bearer $token" https://chargev-db.herokuapp.com/ap
          "isFault" : true,
          "chargepoint" : "chargepoint-0-9304",
          "source" : 1,
-         "location" : {
-            "type" : "Point",
-            "coordinates" : [
-               48.100922,
-               11.52887
-            ]
-         },
       },
       {
          "chargepoint" : "chargepoint-0-7656",
-         "location" : {
-            "type" : "Point",
-            "coordinates" : [
-               48.182262,
-               11.531637
-            ]
-         },
          "source" : 1,
          "comment" : "22kW auf Parkdeck P1 ist defekt.",
          "isFault" : true,
@@ -377,13 +340,6 @@ $ curl -qs -H "Authorization: Bearer $token" https://chargev-db.herokuapp.com/ap
     {
       "timestamp": "2018-04-11T10:00:00",
       "chargepoint": "chargepoint-0-7656",
-      "location": {
-        "type": "Point",
-        "coordinates": [
-          48,
-          11
-        ]
-      },
       "reason": 10,
       "nickname": "Foo",
       "userID": "BarID"
@@ -391,13 +347,6 @@ $ curl -qs -H "Authorization: Bearer $token" https://chargev-db.herokuapp.com/ap
     {
       "timestamp": "2018-04-11T10:00:00",
       "chargepoint": "chargepoint-0-7656",
-      "location": {
-        "type": "Point",
-        "coordinates": [
-          48,
-          11
-        ]
-      },
       "reason": 10,
       "nickname": "Foo",
       "userID": "BarID",
@@ -434,13 +383,6 @@ curl -qs -H "Authorization: Bearer $token" -XPOST -H"Content-type: Application/j
          "_id" : "5acdfcb71a8ea9a8eedbbd87",
          "createdAt" : "2018-04-11T12:16:55.146Z",
          "timestamp" : "2018-04-11T08:00:00.000Z",
-         "location" : {
-            "coordinates" : [
-               48,
-               11
-            ],
-            "type" : "Point"
-         },
          "chargepoint" : "chargepoint-0-7656",
          "userID" : "BarID"
       },
@@ -457,13 +399,6 @@ curl -qs -H "Authorization: Bearer $token" -XPOST -H"Content-type: Application/j
          "nickname" : "Foo",
          "updatedAt" : "2018-04-11T12:16:55.146Z",
          "timestamp" : "2018-04-11T08:00:00.000Z",
-         "location" : {
-            "coordinates" : [
-               48,
-               11
-            ],
-            "type" : "Point"
-         },
          "chargepoint" : "chargepoint-0-7656",
          "userID" : "BarID"
       }

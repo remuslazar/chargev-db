@@ -14,7 +14,6 @@ block content
         th comment
         th nickname
         th chargepoint
-        th location
     tbody
       for event in events
         tr(class=event.deleted === true ? 'deleted' : '')
@@ -27,4 +26,3 @@ block content
           td= event.comment
           td= event.nickname
           td= event.chargepoint
-          td= JSON.stringify(event.location)
