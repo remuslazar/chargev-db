@@ -9,7 +9,7 @@
   "scripts": {
     "tsc": "tsc",
     "prestart": "tsc",
-    "postinstall": "npm run install-cloudkit-js",
+    "postinstall": "npm run install-cloudkit-js ; npm run create-cloudkit-key",
     "ts-node": "ts-node",
     "test": "echo \"Error: no test specified\" && exit 1",
     "install-cloudkit-js": "mkdir -p cloudkit/vendor ; curl -qs https://cdn.apple-cloudkit.com/ck/1/cloudkit.js > cloudkit/vendor/cloudkit.js",
