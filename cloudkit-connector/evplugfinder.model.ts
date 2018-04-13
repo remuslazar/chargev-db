@@ -40,6 +40,7 @@ interface CKCheckIn extends CKRecordUpsert {
     reason: CKField<CKCheckInReason>;
     plug?: CKField<string>;
     timestamp: CKField<Date>;
+    modified: CKField<Date>;
     source?: CKField<ChargeEventSource>;
   };
 }
@@ -122,6 +123,7 @@ export class CKCheckInFromLadelog implements CKCheckIn {
     reason: CKField<CKCheckInReason>;
     plug?: CKField<string>;
     timestamp: CKField<Date>;
+    modified: CKField<Date>;
     source?: CKField<ChargeEventSource>;
   };
   recordType?: string;
@@ -139,6 +141,7 @@ export class CKCheckInFromLadelog implements CKCheckIn {
     };
 
     this.fields.timestamp = new CKField(ladelog.modified);
+    this.fields.modified = new CKField(ladelog.updatedAt);
     this.fields.comment = new CKField(entities.decode(ladelog.comment));
     this.fields.reason = new CKField(ladelog.isFault ? CKCheckInReason.equipementProblem : CKCheckInReason.ok);
   }

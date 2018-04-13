@@ -276,12 +276,23 @@ export class CheckInsSyncManager {
    */
   public async createCheckInsInCloudKitForNewChargeEvents() {
     // fetch the timestamp of the last inserted chargeevent, so we can perform a delta upload
-    const timestampOfLastInsertedRecord =
+    let timestampOfLastInsertedRecord =
         await this.service.getLastTimestampOfSynchronizedRecord(allSourcesOtherThanChargEVSource);
-    console.log(`newest timestamp from CloudKit: ${timestampOfLastInsertedRecord.toISOString()}`);
+
+    if (timestampOfLastInsertedRecord) {
+      console.log(`newest timestamp from CloudKit: ${timestampOfLastInsertedRecord.toISOString()}`);
+    }
+
+    const conditions = <any>{
+      source: {$ne: ChargeEventSource.cloudKit},
+    };
+
+    if (timestampOfLastInsertedRecord) {
+      conditions['updatedAt'] = {$gt: timestampOfLastInsertedRecord};
+    }
 
     const events = await ChargeEvent
-        .find({source: {$ne: ChargeEventSource.cloudKit}, updatedAt: {$gt: timestampOfLastInsertedRecord}})
+        .find(conditions)
         .sort({updatedAt: 1});
 
     for(let event of events) {

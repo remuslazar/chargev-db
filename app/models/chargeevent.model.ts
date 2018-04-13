@@ -189,7 +189,6 @@ ladelogSchema.set('toObject', {
   transform: (doc: any, ret: ILadelog) => {
     delete ret._id;
     delete ret.createdAt;
-    delete ret.updatedAt;
 
     return ret;
   }

@@ -100,12 +100,12 @@ export class CloudKitService {
       ],
       sortBy: [
         {
-          systemFieldName: "createdTimestamp",
+          fieldName: "modified",
           ascending: false
         }
       ],
     }, { resultsLimit: 1 }).then(function (response: any) {
-      return response.records.length ? new Date(response.records[0].created.timestamp) : null;
+      return response.records.length && response.records[0].fields.modified ? new Date(response.records[0].fields.modified.value) : null;
     })
   };
 
