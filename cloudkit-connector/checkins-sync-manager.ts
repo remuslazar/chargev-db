@@ -16,6 +16,7 @@ import {
   GEChargepoint
 } from "./evplugfinder.model";
 import {GoingElectricFetcher} from "../GE/GoingElectricFetcher";
+import {Chargelocation} from "../GE/api.interface";
 
 export class CheckInsSyncManager {
 
@@ -216,11 +217,28 @@ export class CheckInsSyncManager {
     });
   };
 
+  private async getChargePointDetails(ref: ChargepointRef): Promise<Chargelocation> {
+    const chargepointInfo = new ChargepointInfo(ref);
+
+    if (chargepointInfo.registry !== EVPlugFinderRegistry.goingElectric) {
+      throw new Error(`currently we support only the GoingElectric registry`);
+    }
+
+    const chargepoints = await this.goingElectricFetcher.fetchChargepoints([chargepointInfo.id]);
+
+    if (!chargepoints || chargepoints.length === 0) {
+      throw new Error(`could not fetch chargepoint details for going electric chargepoing with ge_id: ${chargepointInfo.id}`);
+    }
+    return chargepoints[0];
+  }
+
   protected async createCheckInForLadelog(ladelog: ILadelog) {
     const chargepointRef = new ChargepointRef(ladelog.chargepoint);
 
+    const chargepointDetails = await this.getChargePointDetails(chargepointRef);
+
     const lastCheckIn = await this.service.getLastCheckIn(chargepointRef);
-    const ckCheckInToInsert = new CKCheckInFromLadelog(ladelog);
+    const ckCheckInToInsert = new CKCheckInFromLadelog(ladelog, chargepointDetails);
 
     // check if the lastCheckin is newer than the CheckIn we want to insert
     if (lastCheckIn && lastCheckIn.fields.timestamp && lastCheckIn.fields.timestamp.value >= ckCheckInToInsert.fields.timestamp.value) {
@@ -238,17 +256,6 @@ export class CheckInsSyncManager {
       console.log(`Warning: Last (GE) CheckIn for ${chargepointRef.value.recordName} is positive, NOT creating another positive CheckIn in this case.`);
       return;
     }
-
-    const chargepointInfo = new ChargepointInfo(chargepointRef);
-    if (chargepointInfo.registry !== EVPlugFinderRegistry.goingElectric) {
-      throw new Error(`currently we support only the GoingElectric registry`);
-    }
-
-    const chargepoints = await this.goingElectricFetcher.fetchChargepoints([chargepointInfo.id]);
-    if (!chargepoints || chargepoints.length === 0) {
-      throw new Error(`could not fetch chargepoint details for going electric chargepoing with ge_id: ${chargepointInfo.id}`);
-    }
-    const chargepointDetails = chargepoints[0];
 
     const ckChargePointToUpsert = new GEChargepoint(chargepointDetails, ckCheckInToInsert, lastCheckIn);
 

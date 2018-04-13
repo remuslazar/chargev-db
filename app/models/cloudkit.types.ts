@@ -19,3 +19,8 @@ export interface CKRef {
   };
   type: string;
 }
+
+export interface CKLocation {
+  latitude: number;
+  longitude: number;
+}

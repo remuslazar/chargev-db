@@ -1,5 +1,5 @@
 import {CKLocation, CKRef, CKTimestamp} from "../app/models/cloudkit.types";
-import {ChargeEventSource, GeoJSON, ILadelog} from "../app/models/chargeevent.model";
+import {ChargeEventSource, ILadelog} from "../app/models/chargeevent.model";
 import {format} from "util";
 import {Chargelocation} from "../GE/api.interface";
 const goingElectricStrings = require('./goingelectric');
@@ -105,16 +105,6 @@ export class ChargepointInfo {
   }
 }
 
-class GELocation implements CKLocation {
-  latitude: number;
-  longitude: number;
-
-  constructor(location: GeoJSON) {
-    this.latitude = location.coordinates[0];
-    this.longitude = location.coordinates[1];
-  }
-}
-
 export class CKCheckInFromLadelog implements CKCheckIn {
   fields: {
     chargepoint: CKRef;
@@ -132,12 +122,15 @@ export class CKCheckInFromLadelog implements CKCheckIn {
   created?: CKTimestamp;
   modified?: CKTimestamp;
 
-  constructor(ladelog: ILadelog) {
+  constructor(ladelog: ILadelog, chargelocation: Chargelocation) {
     this.recordType = 'CheckIns';
     this.fields = <any>{
       source: new CKField(ChargeEventSource.goingElectric),
       chargepoint: new ChargepointRef(ladelog.chargepoint),
-      location: new CKField(new GELocation(ladelog.location)),
+      location: new CKField(<CKLocation>{
+        latitude: chargelocation.coordinates.lat,
+        longitude: chargelocation.coordinates.lng,
+      }),
     };
 
     this.fields.timestamp = new CKField(ladelog.modified);
