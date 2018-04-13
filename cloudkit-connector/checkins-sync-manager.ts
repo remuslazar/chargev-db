@@ -303,6 +303,8 @@ export class CheckInsSyncManager {
         console.log(`checkin`);
       }
     }
+
+    return events.length;
   }
 
   /**
@@ -334,7 +336,7 @@ export class CheckInsSyncManager {
     }, {desiredKeys: ['recordName']}, async (records: any[]) => {
       if (records.length > 0) {
         await this.service.delete(records.map($0 => $0.recordName));
-        console.log(`deleted ${records.length} record(s)`);
+        console.log(`${records.length} record(s) deleted`);
       }
     });
   }

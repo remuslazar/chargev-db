@@ -30,11 +30,13 @@ const main = async () => {
       console.error(`CloudKit [${process.env.CLOUDKIT_ENV}] Login OK, userRecordName: ${userInfo.userRecordName}`);
 
       if (argv['purge']) {
+        console.log(`CloudKit purge existing records..`);
         const manager = new CheckInsSyncManager(service, argv['dry-run']);
         await manager.purgeCheckInsInCloudKitOriginallySynchronizedFromLocalDatabase();
       }
 
       if (argv['delta-download']) {
+        console.log(`CloudKit Delta-Download`);
         const timestamp = await service.getchargEVCheckInLastTimestamp();
         console.error(`Newest CheckIn in CloudKit: ${timestamp}`);
 
@@ -48,7 +50,8 @@ const main = async () => {
       if (argv['delta-upload']) {
         console.log(`CloudKit Delta-Upload`);
         const manager = new CheckInsSyncManager(service, argv['dry-run']);
-        await manager.createCheckInsInCloudKitForNewChargeEvents();
+        const totalCount = await manager.createCheckInsInCloudKitForNewChargeEvents();
+        console.log(`Total count: ${totalCount}`);
       }
 
     }
