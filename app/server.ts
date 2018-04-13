@@ -18,15 +18,19 @@ dotenv.config();
 
 app.set(API_JWT_SECRET, process.env[API_JWT_SECRET]);
 
-let basicAuthUsers = {} as any;
-const username: string = process.env['BASIC_AUTH_USERNAME'] || 'username';
-basicAuthUsers[username] = process.env['BASIC_AUTH_PASSWORD'];
+let basicAuthMiddleware: any = null;
 
-const auth = basicAuth({
-  users: basicAuthUsers,
-  challenge: true,
-  realm: 'ge-tools',
-});
+if (process.env['BASIC_AUTH_USERNAME'] && process.env['BASIC_AUTH_PASSWORD']) {
+  let basicAuthUsers = {} as any;
+  const username: string = <string>process.env['BASIC_AUTH_USERNAME'];
+  basicAuthUsers[username] = process.env['BASIC_AUTH_PASSWORD'];
+
+  basicAuthMiddleware = basicAuth({
+    users: basicAuthUsers,
+    challenge: true,
+    realm: 'chargev-db',
+  });
+}
 
 const port: number = parseFloat(process.env.PORT || '') || 3000;
 
@@ -46,10 +50,24 @@ app.set('view engine', 'jade');
 app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 
 app.use(bodyParser.json({limit: '50mb'}));
+
+/**
+ * API
+ */
+
 app.use('/api/v1', apiController);
 
-app.use('/events', auth, chargeeventsController);
-app.use('/', auth, rootController);
+/**
+ * WEB Frontend
+ */
+
+// use basic auth if configured
+if (basicAuthMiddleware) {
+  app.use(basicAuthMiddleware);
+}
+
+app.use('/events', chargeeventsController);
+app.use('/', rootController);
 
 const packageInfo = require('../../package.json');
 app.locals.packageInfo = packageInfo;
