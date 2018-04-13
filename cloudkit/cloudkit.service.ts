@@ -1,6 +1,8 @@
 import {cloudkitContainerConfig} from "./cloudkit.config";
 import * as CloudKit from "./vendor/cloudkit";
 import {allSourcesOtherThanChargEVSource, ChargeEventSource} from "../app/models/chargeevent.model";
+import {CKRef} from "../app/models/cloudkit.types";
+import {CKRecordUpsert} from "../cloudkit-connector/evplugfinder.model";
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -10,7 +12,7 @@ export class CloudKitService {
   private database: any;
 
   // currently logged in user (server-to-server)
-  protected userRecordName: string;
+  protected userRecordName: string|null = null;
 
   async setup() {
     const fetch = require('node-fetch');
@@ -32,44 +34,80 @@ export class CloudKitService {
     return userInfo;
   };
 
+  async getChargePoint(chargepointRef: CKRef) {
+    const response = await this.database.fetchRecords(chargepointRef.value.recordName);
+
+    if (response.hasErrors) {
+      //throw response.errors[0];
+      return null;
+    } else {
+      return response.records ? response.records[0] : null;
+    }
+  };
+
+  async saveRecords(records: CKRecordUpsert[]) {
+    return this.database.saveRecords(records);
+  };
+
+  async getLastCheckIn(ref: CKRef) {
+    const response = await this.database.performQuery({
+      recordType: 'CheckIns',
+      filterBy: [
+        {
+          fieldName: "chargepoint",
+          comparator: "EQUALS",
+          fieldValue: ref
+        }
+      ],
+      sortBy: [
+        {
+          fieldName: "timestamp",
+          ascending: false
+        }
+      ]
+    }, { resultsLimit: 1 });
+
+    return response.records.length ? response.records[0] : null;
+  };
+
   /**
-   * Retrieves the latest timestamp of last inserted record for the specified source
+   * Retrieves the latest timestamp of last inserted record for the specified sources
    *
    * Note: this query will only filter out own records, inserted via server-to-server auth. Especially
    * this will not handle any user created records!
    *
-   * @param {ChargeEventSource} source
-   * @returns {Promise<any>}
+   * @param {ChargeEventSource[]} sources
+   * @returns {Promise<Date|null>}
    */
-  // async getLastTimestampOfSynchronizedRecord(source: ChargeEventSource) {
-  //   return await this.database.performQuery({
-  //     recordType: 'CheckIns',
-  //     filterBy: [
-  //       {
-  //         systemFieldName: 'createdUserRecordName',
-  //         comparator: CloudKit.QueryFilterComparator.EQUALS,
-  //         fieldValue: {
-  //           value: {
-  //             recordName: this.userRecordName,
-  //           }
-  //         }
-  //       },
-  //       {
-  //         fieldName: "source",
-  //         comparator: CloudKit.QueryFilterComparator.EQUALS,
-  //         fieldValue: { value: source },
-  //       }
-  //     ],
-  //     sortBy: [
-  //       {
-  //         systemFieldName: "createdTimestamp",
-  //         ascending: false
-  //       }
-  //     ],
-  //   }, { resultsLimit: 1 }).then(function (response: any) {
-  //     return response.records.length ? new Date(response.records[0].created.timestamp) : null;
-  //   })
-  // };
+  async getLastTimestampOfSynchronizedRecord(sources: ChargeEventSource[]) {
+    return await this.database.performQuery({
+      recordType: 'CheckIns',
+      filterBy: [
+        {
+          systemFieldName: 'createdUserRecordName',
+          comparator: CloudKit.QueryFilterComparator.EQUALS,
+          fieldValue: {
+            value: {
+              recordName: this.userRecordName,
+            }
+          }
+        },
+        {
+          fieldName: "source",
+          comparator: CloudKit.QueryFilterComparator.IN,
+          fieldValue: { value: sources },
+        }
+      ],
+      sortBy: [
+        {
+          systemFieldName: "createdTimestamp",
+          ascending: false
+        }
+      ],
+    }, { resultsLimit: 1 }).then(function (response: any) {
+      return response.records.length ? new Date(response.records[0].created.timestamp) : null;
+    })
+  };
 
   /**
    * Retrieves the latest timestamp of the last chargEV user generated CheckIn

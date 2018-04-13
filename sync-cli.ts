@@ -29,15 +29,21 @@ const main = async () => {
 
       console.error(`CloudKit [${process.env.CLOUDKIT_ENV}] Login OK, userRecordName: ${userInfo.userRecordName}`);
 
-      const timestamp = await service.getchargEVCheckInLastTimestamp();
-      console.error(`Newest CheckIn in CloudKit: ${timestamp}`);
-
       if (argv['delta-download']) {
+        const timestamp = await service.getchargEVCheckInLastTimestamp();
+        console.error(`Newest CheckIn in CloudKit: ${timestamp}`);
+
         const manager = new CheckInsSyncManager(service);
         const updatedCheckIns = await manager.syncCheckInsFromCloudKit(argv['purge']);
         if (updatedCheckIns.length > 0) {
           await manager.syncUsersFromCloudKit(updatedCheckIns, argv['purge']);
         }
+      }
+
+      if (argv['delta-upload']) {
+        console.log(`CloudKit Delta-Upload`);
+        const manager = new CheckInsSyncManager(service);
+        await manager.createCheckInsInCloudKitForNewChargeEvents();
       }
 
     }

@@ -1,14 +1,15 @@
 import {
-  allSourcesOtherThanChargEVSource,
+  allSourcesOtherThanChargEVSource, ChargeEvent,
   ChargeEventSource,
   CheckIn,
   CKCheckIn,
-  ICheckIn,
+  ICheckIn, ILadelog, Ladelog,
   Point
 } from "../app/models/chargeevent.model";
 import {CKUser, getCKUserFromCKRecord} from "../app/models/ck-user.model";
 import * as CloudKit from "../cloudkit/vendor/cloudkit";
 import {CloudKitService} from "../cloudkit/cloudkit.service";
+import {ChargepointRef, CKCheckFromLadelog, CKCheckInReason, GEChargepoint} from "./evplugfinder.model";
 
 export class CheckInsSyncManager {
 
@@ -200,5 +201,76 @@ export class CheckInsSyncManager {
       console.log('Sync CloudKit User Records: %d record(s) processed.', count);
     });
   };
+
+  protected async createCheckInForLadelog(ladelog: ILadelog, dryRun = false) {
+    const chargepointRef = new ChargepointRef(ladelog.chargepoint);
+
+    const lastCheckIn = await this.service.getLastCheckIn(chargepointRef);
+    const ckCheckInToInsert = new CKCheckFromLadelog(ladelog);
+
+    // check if the lastCheckin is newer than the CheckIn we want to insert
+    if (lastCheckIn && lastCheckIn.fields.timestamp.value >= ckCheckInToInsert.fields.timestamp.value) {
+      console.log(`Last CheckIn for ${chargepointRef.value.recordName} is newer than the CheckIn we want to insert. Skipping..`);
+      return;
+    }
+
+    // Check if the last CheckIn is already positive and the new checkin we want to insert as well,
+    // then do NOT insert the new checkIn to avoid multiple redundant entries.
+    if (lastCheckIn && lastCheckIn.fields.source &&
+        lastCheckIn.fields.source.value === ChargeEventSource.goingElectric &&
+        lastCheckIn.fields.reason.value === CKCheckInReason.ok &&
+        ckCheckInToInsert.fields.reason.value === CKCheckInReason.ok
+    ) {
+      console.log(`Warning: Last (GE) CheckIn for ${chargepointRef.value.recordName} is positive, NOT creating another positive CheckIn in this case.`);
+      return;
+    }
+
+    const ckChargePointToUpsert = new GEChargepoint({}, ckCheckInToInsert, lastCheckIn);
+
+    if (dryRun) {
+      console.log(`DRY RUN: New ${ckCheckInToInsert} for ${ckChargePointToUpsert}`);
+      return;
+    }
+
+    const existinCKChargePoint = await this.service.getChargePoint(chargepointRef);
+
+    if (existinCKChargePoint) {
+      ckChargePointToUpsert.recordChangeTag = existinCKChargePoint.recordChangeTag;
+    }
+
+    await this.service.saveRecords([ckCheckInToInsert, ckChargePointToUpsert]);
+    console.log(`New ${ckCheckInToInsert} for ${ckChargePointToUpsert} created.`);
+  }
+
+  /**
+   * Create new CheckIns in the CloudKit Backend for all new ChargeEvent's in the local database
+   *
+   * This means:
+   *
+   *   - chargEV Users will see the synchronized ChargeEvent records as regular CheckIns in the event list
+   *   - chargEV Users will be notified per Push if appropriate (state transition occurred, chargestation is favorite)
+   *
+   */
+  public async createCheckInsInCloudKitForNewChargeEvents() {
+    // fetch the timestamp of the last inserted chargeevent, so we can perform a delta upload
+    const timestampOfLastInsertedRecord =
+        await this.service.getLastTimestampOfSynchronizedRecord(allSourcesOtherThanChargEVSource);
+    console.log(`newest timestamp from CloudKit: ${timestampOfLastInsertedRecord.toISOString()}`);
+
+    const events = await ChargeEvent
+        .find({source: {$ne: ChargeEventSource.cloudKit}, updatedAt: {$gt: timestampOfLastInsertedRecord}})
+        .sort({updatedAt: 1});
+
+    for(let event of events) {
+      if (event instanceof Ladelog) {
+        const ladelog = <ILadelog>event.toObject();
+        this.createCheckInForLadelog(ladelog);
+      } else if (event instanceof CheckIn) {
+        console.log(`checkin`);
+      }
+    }
+
+
+  }
 
 }
