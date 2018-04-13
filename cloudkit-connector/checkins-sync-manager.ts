@@ -101,16 +101,25 @@ export class CheckInsSyncManager {
         desiredKeys: [ ] // we do only need the recordName, no other info
       };
 
-      const recordNames: string[] = [];
-
-      await this.service.find(query, options, async (records: any[]) => {
-        // console.log(JSON.stringify(records, null, 4));
-        for (let record of records) {
-          recordNames.push(record.recordName);
+      try {
+        const recordNames: string[] = [];
+        await this.service.find(query, options, async (records: any[]) => {
+          // console.log(JSON.stringify(records, null, 4));
+          for (let record of records) {
+            recordNames.push(record.recordName);
+          }
+        });
+        return recordNames;
+      } catch (error) {
+        if (error.ckErrorCode === 'BAD_REQUEST' && chargepoints.length >= 2) {
+          const howMany = chargepoints.length / 2;
+          // split the records array in half and recurse
+          const remaining = chargepoints.splice(0, howMany);
+          return (await getCheckInRecordNames(chargepoints)).concat(await getCheckInRecordNames(remaining));
+        } else {
+          throw error;
         }
-      });
-
-      return recordNames;
+      }
     };
 
     const chargepointRefs = await getChangedChargepointsRefs(newestTimestamp);
