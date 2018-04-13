@@ -1,5 +1,6 @@
 import {cloudkitContainerConfig} from "./cloudkit.config";
 import * as CloudKit from "./vendor/cloudkit";
+import {allSourcesOtherThanChargEVSource, ChargeEventSource} from "../app/models/chargeevent.model";
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -7,6 +8,9 @@ export class CloudKitService {
 
   private container: any;
   private database: any;
+
+  // currently logged in user (server-to-server)
+  protected userRecordName: string;
 
   async setup() {
     const fetch = require('node-fetch');
@@ -23,28 +27,73 @@ export class CloudKitService {
     this.container = CloudKit.getDefaultContainer();
     this.database = this.container.publicCloudDatabase; // We'll only make calls to the public database.
 
-    return await this.container.setUpAuth();
+    const userInfo = await this.container.setUpAuth();
+    this.userRecordName = userInfo.userRecordName;
+    return userInfo;
   };
 
-  async getLastTimestamp(userRecordName: string) {
+  /**
+   * Retrieves the latest timestamp of last inserted record for the specified source
+   *
+   * Note: this query will only filter out own records, inserted via server-to-server auth. Especially
+   * this will not handle any user created records!
+   *
+   * @param {ChargeEventSource} source
+   * @returns {Promise<any>}
+   */
+  // async getLastTimestampOfSynchronizedRecord(source: ChargeEventSource) {
+  //   return await this.database.performQuery({
+  //     recordType: 'CheckIns',
+  //     filterBy: [
+  //       {
+  //         systemFieldName: 'createdUserRecordName',
+  //         comparator: CloudKit.QueryFilterComparator.EQUALS,
+  //         fieldValue: {
+  //           value: {
+  //             recordName: this.userRecordName,
+  //           }
+  //         }
+  //       },
+  //       {
+  //         fieldName: "source",
+  //         comparator: CloudKit.QueryFilterComparator.EQUALS,
+  //         fieldValue: { value: source },
+  //       }
+  //     ],
+  //     sortBy: [
+  //       {
+  //         systemFieldName: "createdTimestamp",
+  //         ascending: false
+  //       }
+  //     ],
+  //   }, { resultsLimit: 1 }).then(function (response: any) {
+  //     return response.records.length ? new Date(response.records[0].created.timestamp) : null;
+  //   })
+  // };
+
+  /**
+   * Retrieves the latest timestamp of the last chargEV user generated CheckIn
+   *
+   * Note: this query will filter out any other "mirrored" records of other sources
+   *
+   * @returns {Promise<any>}
+   */
+  async getchargEVCheckInLastTimestamp() {
     return await this.database.performQuery({
       recordType: 'CheckIns',
       filterBy: [
         {
-          systemFieldName: 'createdUserRecordName',
-          comparator: CloudKit.QueryFilterComparator.EQUALS,
-          fieldValue: {
-            value: {
-              recordName: userRecordName,
-            }
-          }
-        },
-        {
           fieldName: "source",
-          comparator: CloudKit.QueryFilterComparator.EQUALS,
-          fieldValue: { value: 1 } // CKCheckInSource.goingElectricSync
+          comparator: CloudKit.QueryFilterComparator.NOT_IN,
+          fieldValue: { value: allSourcesOtherThanChargEVSource },
         }
-      ]
+      ],
+      sortBy: [
+        {
+          systemFieldName: "createdTimestamp",
+          ascending: false
+        }
+      ],
     }, { resultsLimit: 1 }).then(function (response: any) {
       return response.records.length ? new Date(response.records[0].created.timestamp) : null;
     })

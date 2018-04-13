@@ -28,7 +28,8 @@ const main = async () => {
       }
 
       console.error(`CloudKit [${process.env.CLOUDKIT_ENV}] Login OK, userRecordName: ${userInfo.userRecordName}`);
-      const timestamp = await service.getLastTimestamp(userInfo.userRecordName);
+
+      const timestamp = await service.getchargEVCheckInLastTimestamp();
       console.error(`Newest CheckIn in CloudKit: ${timestamp}`);
 
       if (argv['delta-download']) {
