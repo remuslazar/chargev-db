@@ -3,7 +3,7 @@
 import * as dotenv from 'dotenv';
 import * as mongoose from "mongoose";
 import {CheckInsSyncManager} from "./cloudkit-connector/checkins-sync-manager";
-import {CloudKitService} from "./cloudkit/cloudkit-service";
+import {CloudKitService} from "./cloudkit/cloudkit.service";
 
 dotenv.config();
 const argv = require('minimist')(process.argv.slice(2));

@@ -7,8 +7,8 @@ import {
   Point
 } from "../app/models/chargeevent.model";
 import {CKUser, getCKUserFromCKRecord} from "../app/models/ck-user.model";
-import {CloudKitService} from "../cloudkit/cloudkit-service";
 import * as CloudKit from "../cloudkit/vendor/cloudkit";
+import {CloudKitService} from "../cloudkit/cloudkit.service";
 
 export class CheckInsSyncManager {
 
