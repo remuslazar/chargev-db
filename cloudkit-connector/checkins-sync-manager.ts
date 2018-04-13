@@ -235,43 +235,46 @@ export class CheckInsSyncManager {
   protected async createCheckInForLadelog(ladelog: ILadelog) {
     const chargepointRef = new ChargepointRef(ladelog.chargepoint);
 
-    const chargepointDetails = await this.getChargePointDetails(chargepointRef);
+    try {
+      const chargepointDetails = await this.getChargePointDetails(chargepointRef);
+      const lastCheckIn = await this.service.getLastCheckIn(chargepointRef);
+      const ckCheckInToInsert = new CKCheckInFromLadelog(ladelog, chargepointDetails);
 
-    const lastCheckIn = await this.service.getLastCheckIn(chargepointRef);
-    const ckCheckInToInsert = new CKCheckInFromLadelog(ladelog, chargepointDetails);
+      // check if the lastCheckin is newer than the CheckIn we want to insert
+      if (lastCheckIn && lastCheckIn.fields.timestamp && lastCheckIn.fields.timestamp.value >= ckCheckInToInsert.fields.timestamp.value) {
+        console.log(`Last CheckIn for ${chargepointRef.value.recordName} is newer than the CheckIn we want to insert. Skipping..`);
+        return;
+      }
 
-    // check if the lastCheckin is newer than the CheckIn we want to insert
-    if (lastCheckIn && lastCheckIn.fields.timestamp && lastCheckIn.fields.timestamp.value >= ckCheckInToInsert.fields.timestamp.value) {
-      console.log(`Last CheckIn for ${chargepointRef.value.recordName} is newer than the CheckIn we want to insert. Skipping..`);
-      return;
+      // Check if the last CheckIn is already positive and the new checkin we want to insert as well,
+      // then do NOT insert the new checkIn to avoid multiple redundant entries.
+      if (lastCheckIn && lastCheckIn.fields.source &&
+          lastCheckIn.fields.source.value === ChargeEventSource.goingElectric &&
+          lastCheckIn.fields.reason.value === CKCheckInReason.ok &&
+          ckCheckInToInsert.fields.reason.value === CKCheckInReason.ok
+      ) {
+        console.log(`Warning: Last (GE) CheckIn for ${chargepointRef.value.recordName} is positive, NOT creating another positive CheckIn in this case.`);
+        return;
+      }
+
+      const ckChargePointToUpsert = new GEChargepoint(chargepointDetails, ckCheckInToInsert, lastCheckIn);
+
+      if (this.dryRun) {
+        console.log(`DRY RUN: New ${ckCheckInToInsert} for ${ckChargePointToUpsert}`);
+        return;
+      }
+
+      const existinCKChargePoint = await this.service.getChargePoint(chargepointRef);
+
+      if (existinCKChargePoint) {
+        ckChargePointToUpsert.recordChangeTag = existinCKChargePoint.recordChangeTag;
+      }
+
+      await this.service.saveRecords([ckCheckInToInsert, ckChargePointToUpsert]);
+      console.log(`New ${ckCheckInToInsert} for ${ckChargePointToUpsert} created.`);
+    } catch (err) {
+      console.log(`ERROR: ${err.message}. CheckIn skipped.`)
     }
-
-    // Check if the last CheckIn is already positive and the new checkin we want to insert as well,
-    // then do NOT insert the new checkIn to avoid multiple redundant entries.
-    if (lastCheckIn && lastCheckIn.fields.source &&
-        lastCheckIn.fields.source.value === ChargeEventSource.goingElectric &&
-        lastCheckIn.fields.reason.value === CKCheckInReason.ok &&
-        ckCheckInToInsert.fields.reason.value === CKCheckInReason.ok
-    ) {
-      console.log(`Warning: Last (GE) CheckIn for ${chargepointRef.value.recordName} is positive, NOT creating another positive CheckIn in this case.`);
-      return;
-    }
-
-    const ckChargePointToUpsert = new GEChargepoint(chargepointDetails, ckCheckInToInsert, lastCheckIn);
-
-    if (this.dryRun) {
-      console.log(`DRY RUN: New ${ckCheckInToInsert} for ${ckChargePointToUpsert}`);
-      return;
-    }
-
-    const existinCKChargePoint = await this.service.getChargePoint(chargepointRef);
-
-    if (existinCKChargePoint) {
-      ckChargePointToUpsert.recordChangeTag = existinCKChargePoint.recordChangeTag;
-    }
-
-    await this.service.saveRecords([ckCheckInToInsert, ckChargePointToUpsert]);
-    console.log(`New ${ckCheckInToInsert} for ${ckChargePointToUpsert} created.`);
   }
 
   /**
