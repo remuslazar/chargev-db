@@ -9,12 +9,24 @@ import {
 import {CKUser, getCKUserFromCKRecord} from "../app/models/ck-user.model";
 import * as CloudKit from "../cloudkit/vendor/cloudkit";
 import {CloudKitService} from "../cloudkit/cloudkit.service";
-import {ChargepointRef, CKCheckFromLadelog, CKCheckInReason, GEChargepoint} from "./evplugfinder.model";
+import {
+  ChargepointInfo,
+  ChargepointRef,
+  CKCheckFromLadelog,
+  CKCheckInReason, EVPlugFinderRegistry,
+  GEChargepoint
+} from "./evplugfinder.model";
+import {GoingElectricFetcher} from "../GE/GoingElectricFetcher";
 
 export class CheckInsSyncManager {
 
-  constructor(private service: CloudKitService) {
+  protected goingElectricFetcher: GoingElectricFetcher;
 
+  constructor(private service: CloudKitService, private dryRun: boolean) {
+    if (!process.env.GE_API_KEY) {
+      throw new Error(`GE API Key not configured`);
+    }
+    this.goingElectricFetcher = new GoingElectricFetcher(<string>process.env.GE_API_KEY)
   }
 
   private getCheckInFromCKRecord(record: any) {
@@ -202,14 +214,14 @@ export class CheckInsSyncManager {
     });
   };
 
-  protected async createCheckInForLadelog(ladelog: ILadelog, dryRun = false) {
+  protected async createCheckInForLadelog(ladelog: ILadelog) {
     const chargepointRef = new ChargepointRef(ladelog.chargepoint);
 
     const lastCheckIn = await this.service.getLastCheckIn(chargepointRef);
     const ckCheckInToInsert = new CKCheckFromLadelog(ladelog);
 
     // check if the lastCheckin is newer than the CheckIn we want to insert
-    if (lastCheckIn && lastCheckIn.fields.timestamp.value >= ckCheckInToInsert.fields.timestamp.value) {
+    if (lastCheckIn && lastCheckIn.fields.timestamp && lastCheckIn.fields.timestamp.value >= ckCheckInToInsert.fields.timestamp.value) {
       console.log(`Last CheckIn for ${chargepointRef.value.recordName} is newer than the CheckIn we want to insert. Skipping..`);
       return;
     }
@@ -225,9 +237,20 @@ export class CheckInsSyncManager {
       return;
     }
 
-    const ckChargePointToUpsert = new GEChargepoint({}, ckCheckInToInsert, lastCheckIn);
+    const chargepointInfo = new ChargepointInfo(chargepointRef);
+    if (chargepointInfo.registry !== EVPlugFinderRegistry.goingElectric) {
+      throw new Error(`currently we support only the GoingElectric registry`);
+    }
 
-    if (dryRun) {
+    const chargepoints = await this.goingElectricFetcher.fetchChargepoints([chargepointInfo.id]);
+    if (!chargepoints || chargepoints.length === 0) {
+      throw new Error(`could not fetch chargepoint details for going electric chargepoing with ge_id: ${chargepointInfo.id}`);
+    }
+    const chargepointDetails = chargepoints[0];
+
+    const ckChargePointToUpsert = new GEChargepoint(chargepointDetails, ckCheckInToInsert, lastCheckIn);
+
+    if (this.dryRun) {
       console.log(`DRY RUN: New ${ckCheckInToInsert} for ${ckChargePointToUpsert}`);
       return;
     }
@@ -264,7 +287,7 @@ export class CheckInsSyncManager {
     for(let event of events) {
       if (event instanceof Ladelog) {
         const ladelog = <ILadelog>event.toObject();
-        this.createCheckInForLadelog(ladelog);
+        await this.createCheckInForLadelog(ladelog);
       } else if (event instanceof CheckIn) {
         console.log(`checkin`);
       }

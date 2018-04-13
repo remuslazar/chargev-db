@@ -1,6 +1,7 @@
 import {CKLocation, CKRef, CKTimestamp} from "../app/models/cloudkit.types";
 import {ChargeEventSource, GeoJSON, ILadelog} from "../app/models/chargeevent.model";
 import {format} from "util";
+import {Chargelocation} from "../GE/api.interface";
 const goingElectricStrings = require('./goingelectric');
 
 const Entities = require('html-entities').AllHtmlEntities;
@@ -80,6 +81,26 @@ export class ChargepointRef implements CKRef {
       action: 'DELETE_SELF',
     };
     this.type = 'REFERENCE';
+  }
+}
+
+export enum EVPlugFinderRegistry {
+  goingElectric = 0,
+  openChargeMap = 1,
+}
+
+export class ChargepointInfo {
+
+  public registry: EVPlugFinderRegistry;
+  public id: number;
+
+  constructor(ref: ChargepointRef) {
+    const match = ref.value.recordName.match(/^chargepoint-(\d+)-(\d+)$/);
+    if (!match || match.length !== 3) {
+      throw new Error(`chargepoint identifier "${ref.value.recordName}" does not match expected format`)
+    }
+    this.registry = parseFloat(match[1]) as EVPlugFinderRegistry;
+    this.id = parseFloat(match[2]);
   }
 }
 
@@ -163,14 +184,16 @@ export class GEChargepoint implements CKChargePoint {
   recordName: string;
   recordChangeTag?: string;
 
-  constructor(chargelocation: any, checkIn: CKCheckIn, lastCheckIn?: CKCheckIn) {
-    // TODO: this is not fully functional now!
+  constructor(chargelocation: Chargelocation, checkIn: CKCheckIn, lastCheckIn?: CKCheckIn) {
     this.recordType = 'ChargePoints';
-    this.recordName = (new ChargepointRef(chargelocation)).value.recordName;
+    this.recordName = (new ChargepointRef(checkIn.fields.chargepoint.value.recordName)).value.recordName;
 
     this.fields = {
       chargePointHash: new CKField(chargelocation.ge_id),
-      location: new CKField(new GELocation(chargelocation.coordinates)),
+      location: new CKField(<CKLocation>{
+        latitude: chargelocation.coordinates.lat,
+        longitude: chargelocation.coordinates.lng,
+      }),
       timestamp: checkIn.fields.timestamp,
       name: new CKField(entities.decode(chargelocation.name)),
       url: new CKField('http:' + chargelocation.url),
@@ -195,6 +218,6 @@ export class GEChargepoint implements CKChargePoint {
   }
 
   toString() {
-    return `${this.recordName} [reason: ${this.fields.reason.value}]`;
+    return `${this.recordName} "${this.fields.name.value}" [reason: ${this.fields.reason.value}]`;
   }
 }

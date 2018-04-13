@@ -33,7 +33,7 @@ const main = async () => {
         const timestamp = await service.getchargEVCheckInLastTimestamp();
         console.error(`Newest CheckIn in CloudKit: ${timestamp}`);
 
-        const manager = new CheckInsSyncManager(service);
+        const manager = new CheckInsSyncManager(service, argv['dry-run']);
         const updatedCheckIns = await manager.syncCheckInsFromCloudKit(argv['purge']);
         if (updatedCheckIns.length > 0) {
           await manager.syncUsersFromCloudKit(updatedCheckIns, argv['purge']);
@@ -42,7 +42,7 @@ const main = async () => {
 
       if (argv['delta-upload']) {
         console.log(`CloudKit Delta-Upload`);
-        const manager = new CheckInsSyncManager(service);
+        const manager = new CheckInsSyncManager(service, argv['dry-run']);
         await manager.createCheckInsInCloudKitForNewChargeEvents();
       }
 
