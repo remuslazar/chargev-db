@@ -27,4 +27,5 @@ block content
           td= event.plug ? event.plug : "n.a."
           td= event.comment
           td= event.nickname
-          td= event.chargepoint
+          td
+            a(href=geToolsViewHelper.chargePointDetailURL(event)) #{event.chargepoint}

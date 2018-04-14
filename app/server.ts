@@ -11,6 +11,7 @@ import {rootController} from './controllers/root.controller';
 import {apiController} from "./controllers/api.controller";
 import {chargeeventsController} from "./controllers/chargeevents.controller";
 import {AppRequest} from "./auth/jwt-auth.middleware";
+import {GEToolsViewHelper} from "./controllers/viewhelpers/ge-tools.viewhelper";
 
 export const app: express.Application = express();
 
@@ -72,6 +73,7 @@ app.use('/', rootController);
 const packageInfo = require('../../package.json');
 app.locals.packageInfo = packageInfo;
 app.locals.moment = require('moment');
+app.locals.geToolsViewHelper = new GEToolsViewHelper('http://ge-tools.herokuapp.com');
 
 export interface Error {
     status?: number;
