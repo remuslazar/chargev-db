@@ -20,6 +20,7 @@ import {Chargelocation} from "../GE/api.interface";
 
 export interface CheckInsSyncManagerOptions {
   dryRun: boolean;
+  limit?: number;
 }
 
 export class CheckInsSyncManager {
@@ -72,7 +73,8 @@ export class CheckInsSyncManager {
       };
 
       const options = {
-        desiredKeys: [ ] // we do only need the recordName, no other info
+        desiredKeys: [ ], // we do only need the recordName, no other info
+        resultsLimit: this.options.limit,
       };
 
       const chargepointRefs: any[] = [];
@@ -167,7 +169,11 @@ export class CheckInsSyncManager {
       ],
     };
 
-    const options = {};
+    const options = <any>{};
+
+    if (this.options.limit) {
+      options.resultsLimit = this.options.limit;
+    }
 
     query.filterBy.push({
       fieldName: "source",
@@ -318,7 +324,8 @@ export class CheckInsSyncManager {
 
     const events = await ChargeEvent
         .find(conditions)
-        .sort({updatedAt: 1});
+        .sort({updatedAt: 1})
+        .limit(this.options.limit || 0);
 
     for(let event of events) {
       if (event instanceof Ladelog) {

@@ -28,7 +28,10 @@ const main = async () => {
       }
 
       console.error(`CloudKit [${process.env.CLOUDKIT_ENV}] Login OK, userRecordName: ${userInfo.userRecordName}`);
-      const manager = new CheckInsSyncManager(service, { dryRun: argv['dry-run'] });
+      const manager = new CheckInsSyncManager(service, {
+        dryRun: argv['dry-run'],
+        limit: argv.limit ? parseFloat(argv.limit) : undefined }
+      );
 
       if (argv['purge']) {
         console.log(`CloudKit purge existing records..`);
