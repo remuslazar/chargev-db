@@ -117,6 +117,7 @@ export class CKCheckInFromLadelog implements CKCheckIn {
     source?: CKField<ChargeEventSource>;
   };
   recordType?: string;
+  recordName: string;
   recordChangeTag?: string;
   deleted?: boolean;
   created?: CKTimestamp;
@@ -124,6 +125,7 @@ export class CKCheckInFromLadelog implements CKCheckIn {
 
   constructor(ladelog: ILadelog, chargelocation: Chargelocation) {
     this.recordType = 'CheckIns';
+    this.recordName = `chargev-db-${ladelog.id}`;
     this.fields = <any>{
       source: new CKField(ChargeEventSource.goingElectric),
       chargepoint: new ChargepointRef(ladelog.chargepoint),
