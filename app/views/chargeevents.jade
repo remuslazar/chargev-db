@@ -1,14 +1,17 @@
 extends layout
 
 block content
-  h1 ChargeEvent (#{count})
+  h1 ChargeEvents (#{count})
   table.app-chargeevents
     thead
       tr
         th source
         th ID
         th Type
-        th Timestamp
+        th
+          a(href="?sort=timestamp") Timestamp
+        th
+          a(href="?sort=updatedAt") UpdatedAt
         th Result
         th plug
         th comment
@@ -21,8 +24,10 @@ block content
           td= event.id
           td= event.__t
           td= moment(event.timestamp).format('lll')
+          td= moment(event.updatedAt).format('lll')
           td= event.reason ? "Reason Code: "+event.reason : event.isFault ? "FAULT" : "OK"
           td= event.plug ? event.plug : "n.a."
           td= event.comment
           td= event.nickname
-          td= event.chargepoint
+          td
+            a(href=geToolsViewHelper.chargePointDetailURL(event)) #{event.chargepoint}
