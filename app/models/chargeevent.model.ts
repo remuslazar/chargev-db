@@ -67,6 +67,8 @@ const chargeEventSchema = new Schema({
   nickname: String,
 }, {timestamps: true});
 
+chargeEventSchema.index({'updatedAt': 1});
+
 chargeEventSchema.set('toObject', {
   transform: (doc: any, ret: IChargeEventBase) => {
     delete ret._id;
