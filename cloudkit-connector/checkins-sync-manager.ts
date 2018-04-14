@@ -21,6 +21,7 @@ import {Chargelocation} from "../GE/api.interface";
 export interface CheckInsSyncManagerOptions {
   dryRun: boolean;
   limit?: number;
+  verbose: boolean;
 }
 
 export class CheckInsSyncManager {
@@ -289,7 +290,10 @@ export class CheckInsSyncManager {
         ckChargePointToUpsert.recordChangeTag = existinCKChargePoint.recordChangeTag;
       }
 
-      await this.service.saveRecords([ckCheckInToInsert, ckChargePointToUpsert]);
+      const result = await this.service.saveRecords([ckCheckInToInsert, ckChargePointToUpsert]);
+      if (this.options.verbose) {
+        console.log(result.records);
+      }
       console.log(`New ${ckCheckInToInsert} for ${ckChargePointToUpsert} created.`);
     } catch (err) {
       console.log(`ERROR: ${err.message}. CheckIn skipped.`)
