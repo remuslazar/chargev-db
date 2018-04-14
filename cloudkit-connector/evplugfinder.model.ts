@@ -32,7 +32,7 @@ export interface CKRecordUpsert {
   modified?: CKTimestamp;
 }
 
-interface CKCheckIn extends CKRecordUpsert {
+export interface CKCheckInRecord extends CKRecordUpsert {
   fields: {
     chargepoint: CKRef;
     comment?: CKField<string>;
@@ -45,7 +45,7 @@ interface CKCheckIn extends CKRecordUpsert {
   };
 }
 
-interface CKChargePoint extends CKRecordUpsert {
+export interface CKChargePointRecord extends CKRecordUpsert {
   fields: {
     chargePointHash: CKField<number>;
     location: CKField<CKLocation>;
@@ -105,7 +105,7 @@ export class ChargepointInfo {
   }
 }
 
-export class CKCheckInFromLadelog implements CKCheckIn {
+export class CKCheckInFromLadelog implements CKCheckInRecord {
   fields: {
     chargepoint: CKRef;
     comment?: CKField<string>;
@@ -146,7 +146,7 @@ export class CKCheckInFromLadelog implements CKCheckIn {
   }
 }
 
-export class GEChargepoint implements CKChargePoint {
+export class GEChargepoint implements CKChargePointRecord {
 
   /**
    * Reason Code Description
@@ -181,7 +181,7 @@ export class GEChargepoint implements CKChargePoint {
   recordName: string;
   recordChangeTag?: string;
 
-  constructor(chargelocation: Chargelocation, checkIn: CKCheckIn, lastCheckIn?: CKCheckIn) {
+  constructor(chargelocation: Chargelocation, checkIn: CKCheckInRecord, lastCheckIn?: CKCheckInRecord) {
     this.recordType = 'ChargePoints';
     this.recordName = (new ChargepointRef(checkIn.fields.chargepoint.value.recordName)).value.recordName;
 

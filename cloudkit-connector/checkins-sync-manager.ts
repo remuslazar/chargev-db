@@ -1,8 +1,7 @@
 import {
   allSourcesOtherThanChargEVSource, ChargeEvent,
   ChargeEventSource,
-  CheckIn,
-  CKCheckIn,
+  CheckIn, CKCheckIn,
   ICheckIn, ILadelog, Ladelog,
 } from "../app/models/chargeevent.model";
 import {CKUser, getCKUserFromCKRecord} from "../app/models/ck-user.model";
@@ -10,10 +9,10 @@ import * as CloudKit from "../cloudkit/vendor/cloudkit";
 import {CloudKitService} from "../cloudkit/cloudkit.service";
 import {
   ChargepointInfo,
-  ChargepointRef,
+  ChargepointRef, CKChargePointRecord,
   CKCheckInFromLadelog,
-  CKCheckInReason, EVPlugFinderRegistry,
-  GEChargepoint
+  CKCheckInReason, CKCheckInRecord, EVPlugFinderRegistry,
+  GEChargepoint,
 } from "./evplugfinder.model";
 import {GoingElectricFetcher} from "../GE/GoingElectricFetcher";
 import {Chargelocation} from "../GE/api.interface";
@@ -237,8 +236,7 @@ export class CheckInsSyncManager {
     });
   };
 
-  private async getChargePointDetails(ref: ChargepointRef): Promise<Chargelocation> {
-    const chargepointInfo = new ChargepointInfo(ref);
+  private async getChargePointDetails(chargepointInfo: ChargepointInfo): Promise<Chargelocation> {
 
     if (chargepointInfo.registry !== EVPlugFinderRegistry.goingElectric) {
       throw new Error(`currently we support only the GoingElectric registry`);
@@ -252,13 +250,29 @@ export class CheckInsSyncManager {
     return chargepoints[0];
   }
 
-  protected async createCheckInForLadelog(ladelog: ILadelog) {
-    const chargepointRef = new ChargepointRef(ladelog.chargepoint);
+  protected async createCheckInForChargeEvent(chargeEvent: any) {
+    const chargepointRef = new ChargepointRef(chargeEvent.chargepoint);
+    const chargepointInfo = new ChargepointInfo(chargepointRef);
 
     try {
-      const chargepointDetails = await this.getChargePointDetails(chargepointRef);
+
+      let ckCheckInToInsert: CKCheckInRecord;
+      let ckChargePointToUpsert: CKChargePointRecord;
+
+      const chargepointDetails: Chargelocation = await this.getChargePointDetails(chargepointInfo);
       const lastCheckIn = await this.service.getLastCheckIn(chargepointRef);
-      const ckCheckInToInsert = new CKCheckInFromLadelog(ladelog, chargepointDetails);
+
+      if (chargeEvent instanceof Ladelog) {
+        const ladelog = <ILadelog>chargeEvent.toObject();
+        ckCheckInToInsert = new CKCheckInFromLadelog(ladelog, chargepointDetails);
+        ckChargePointToUpsert = new GEChargepoint(chargepointDetails, ckCheckInToInsert, lastCheckIn);
+      } else if (chargeEvent instanceof CheckIn) {
+        // noinspection ExceptionCaughtLocallyJS
+        throw new Error(`ChargeEvent of type 'CheckIn' not implemented yet.`);
+      } else {
+        // noinspection ExceptionCaughtLocallyJS
+        throw new Error(`ChargeEvent of type '${chargeEvent.constructor.name}' not implemented yet.`);
+      }
 
       // check if the lastCheckin is newer than the CheckIn we want to insert
       if (lastCheckIn && lastCheckIn.fields.timestamp && lastCheckIn.fields.timestamp.value >= ckCheckInToInsert.fields.timestamp.value) {
@@ -266,34 +280,35 @@ export class CheckInsSyncManager {
         return;
       }
 
-      // Check if the last CheckIn is already positive and the new checkin we want to insert as well,
-      // then do NOT insert the new checkIn to avoid multiple redundant entries.
-      if (lastCheckIn && lastCheckIn.fields.source &&
-          lastCheckIn.fields.source.value === ChargeEventSource.goingElectric &&
-          lastCheckIn.fields.reason.value === CKCheckInReason.ok &&
-          ckCheckInToInsert.fields.reason.value === CKCheckInReason.ok
-      ) {
-        console.log(`Warning: Last (GE) CheckIn for ${chargepointRef.value.recordName} is positive, NOT creating another positive CheckIn in this case.`);
-        return;
+      if (chargeEvent instanceof Ladelog) {
+        // Check if the last CheckIn is already positive and the new checkin we want to insert as well,
+        // then do NOT insert the new checkIn to avoid multiple redundant entries.
+        if (lastCheckIn && lastCheckIn.fields.source &&
+            lastCheckIn.fields.source.value === ChargeEventSource.goingElectric &&
+            lastCheckIn.fields.reason.value === CKCheckInReason.ok &&
+            ckCheckInToInsert.fields.reason.value === CKCheckInReason.ok
+        ) {
+          console.log(`Warning: Last (GE) CheckIn for ${chargepointRef.value.recordName} is positive, NOT creating another positive CheckIn in this case.`);
+          return;
+        }
       }
-
-      const ckChargePointToUpsert = new GEChargepoint(chargepointDetails, ckCheckInToInsert, lastCheckIn);
 
       if (this.options.dryRun) {
         console.log(`DRY RUN: New ${ckCheckInToInsert} for ${ckChargePointToUpsert}`);
         return;
       }
 
-      const existinCKChargePoint = await this.service.getChargePoint(chargepointRef);
+      const existingCKChargePoint = await this.service.getChargePoint(chargepointRef);
 
-      if (existinCKChargePoint) {
-        ckChargePointToUpsert.recordChangeTag = existinCKChargePoint.recordChangeTag;
+      if (existingCKChargePoint) {
+        ckChargePointToUpsert.recordChangeTag = existingCKChargePoint.recordChangeTag;
       }
 
       const result = await this.service.saveRecords([ckCheckInToInsert, ckChargePointToUpsert]);
       if (this.options.verbose) {
         console.log(result.records);
       }
+
       console.log(`New ${ckCheckInToInsert} for ${ckChargePointToUpsert} created.`);
     } catch (err) {
       console.log(`ERROR: ${err.message}. CheckIn skipped.`)
@@ -332,12 +347,7 @@ export class CheckInsSyncManager {
         .limit(this.options.limit || 0);
 
     for(let event of events) {
-      if (event instanceof Ladelog) {
-        const ladelog = <ILadelog>event.toObject();
-        await this.createCheckInForLadelog(ladelog);
-      } else if (event instanceof CheckIn) {
-        console.log(`checkin`);
-      }
+      await this.createCheckInForChargeEvent(event);
     }
 
     return events.length;
