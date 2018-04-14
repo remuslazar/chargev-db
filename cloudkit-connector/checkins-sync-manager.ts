@@ -18,11 +18,15 @@ import {
 import {GoingElectricFetcher} from "../GE/GoingElectricFetcher";
 import {Chargelocation} from "../GE/api.interface";
 
+export interface CheckInsSyncManagerOptions {
+  dryRun: boolean;
+}
+
 export class CheckInsSyncManager {
 
   protected goingElectricFetcher: GoingElectricFetcher;
 
-  constructor(private service: CloudKitService, private dryRun: boolean) {
+  constructor(private service: CloudKitService, private options: CheckInsSyncManagerOptions) {
     if (!process.env.GE_API_KEY) {
       throw new Error(`GE API Key not configured`);
     }
@@ -268,7 +272,7 @@ export class CheckInsSyncManager {
 
       const ckChargePointToUpsert = new GEChargepoint(chargepointDetails, ckCheckInToInsert, lastCheckIn);
 
-      if (this.dryRun) {
+      if (this.options.dryRun) {
         console.log(`DRY RUN: New ${ckCheckInToInsert} for ${ckChargePointToUpsert}`);
         return;
       }
