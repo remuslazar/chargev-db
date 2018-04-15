@@ -32,4 +32,24 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+router.get('/:chargepointRef', async (req, res, next) => {
+  try {
+    const chargepointRef = req.params.chargepointRef;
+    const conditions = {
+      chargepoint: chargepointRef,
+    };
+    const count = await ChargeEvent.count(conditions);
+    const events = await ChargeEvent
+        .find(conditions)
+        .populate('user', 'nickname recordName');
+    res.render('chargepoint-events', {
+      chargepointRef: chargepointRef,
+      count: count,
+      events: events,
+    })
+  } catch(err) {
+    next(err);
+  }
+});
+
 export const chargeeventsController: Router = router;

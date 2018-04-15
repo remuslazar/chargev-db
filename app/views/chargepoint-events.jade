@@ -1,7 +1,12 @@
 extends layout
 
 block content
-  h1 ChargeEvents (#{count})
+  h1 Chargepoint: #{chargepointRef}
+  ul
+    li
+      a(href=geToolsViewHelper.chargePointDetailURL(chargepointRef)) GE-Tools Details
+
+  h2 ChargeEvents
   table.app-chargeevents
     thead
       tr
@@ -16,7 +21,6 @@ block content
         th plug
         th comment
         th nickname
-        th chargepoint
     tbody
       for event in events
         tr(class=event.deleted === true ? 'deleted' : '')
@@ -29,5 +33,7 @@ block content
           td= event.plug ? event.plug : "n.a."
           td= event.comment
           td= event.nickname
-          td
-            a(href=event.chargepoint) #{event.chargepoint}
+  p
+    | [
+    a(href="/events/") ChargeEvents
+    | ]
