@@ -9,7 +9,7 @@ const manager = new JWTAuthService(<string>process.env.API_JWT_SECRET);
 
 const main = async() => {
   if (argv.generate) {
-    if (!argv['client'] || !argv['source']) {
+    if (!argv['client'] || argv['source'] === undefined) {
       throw new Error('parameter mismatch.');
     }
 
