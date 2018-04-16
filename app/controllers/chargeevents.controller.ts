@@ -20,7 +20,6 @@ router.get('/', async (req, res, next) => {
     const count = await ChargeEvent.count(conditions);
     const events = await ChargeEvent
         .find(conditions)
-        .populate('user', 'nickname recordName')
         .limit(100)
         .sort(sort);
     res.render('chargeevents', {
@@ -50,7 +49,6 @@ router.get('/:chargepointRef', async (req, res, next) => {
     const count = await ChargeEvent.count(conditions);
     const events = await ChargeEvent
         .find(conditions)
-        .populate('user', 'nickname recordName')
         .sort(sort);
 
     res.render('chargepoint-events', {

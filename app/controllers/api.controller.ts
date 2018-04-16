@@ -96,7 +96,6 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
     }
 
     const query = ChargeEvent.find(queryConditions)
-        .populate('user', 'nickname recordName')
         .sort({'updatedAt': 1})
         .limit(limit)
         .skip(skip);
@@ -135,7 +134,6 @@ router.get('/events/latest', async (req: AppRequest, res: Response, next: NextFu
   try {
     const queryConditions = { $and: conditions };
     const query = ChargeEvent.findOne(queryConditions)
-        .populate('user', 'nickname recordName')
         .sort({'upstreamModifiedAt': -1});
     const latestEvent = await query;
     if (!latestEvent) {

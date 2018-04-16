@@ -1,6 +1,5 @@
 import {Document, Model, model, Schema} from 'mongoose';
 import {CKRecord} from "./cloudkit.types";
-import {CKUser} from "./ck-user.model";
 
 export interface MongooseTimestamps {
   createdAt: Date;
@@ -8,6 +7,7 @@ export interface MongooseTimestamps {
 }
 
 export enum ChargeEventSource {
+  // noinspection JSUnusedGlobalSymbols
   cloudKit = 0,
   goingElectric = 1,
 }
@@ -42,11 +42,9 @@ export interface Ladelog extends ChargeEventBase {
 }
 
 export interface ICheckIn extends CheckIn, Document {
-  user?: any; // reference to the user record
 }
 
 export interface ICKCheckIn extends CKCheckIn, Document {
-  user?: any; // reference to the user record
 }
 
 export interface IChargeEventBase extends ChargeEventBase, Document {
@@ -102,7 +100,7 @@ export const cloudkitCheckInSchema = new Schema({
   reason: Number,
   plug: String,
   nickname: String,
-  userID: String,
+  userID: { type: String, index: true },
 });
 
 export const checkInSchema = new Schema({
@@ -124,18 +122,6 @@ export const checkInSchema = new Schema({
 
 chargeEventSchema.set('toObject', {virtuals: true});
 
-chargeEventSchema.virtual('user', {
-  ref: CKUser.modelName,
-  localField: 'created.userRecordName',
-  foreignField: 'recordName',
-  justOne: true,
-});
-
-// for CheckIns we resolve the nickname from the associated user record
-cloudkitCheckInSchema.path('nickname').get(function (this: any) {
-  return this.user ? this.user.nickname : undefined;
-});
-
 // for CheckIns we resolve the userID from the associated user record identifier
 cloudkitCheckInSchema.path('userID').get(function (this: any) {
   return this.user ? this.user.recordName : undefined;
@@ -150,8 +136,6 @@ cloudkitCheckInSchema.set('toObject', {
     delete ret.created;
     delete ret.modified;
     delete ret.recordName;
-
-    delete ret.user;
 
     return ret;
   }
