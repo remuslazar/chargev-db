@@ -86,7 +86,7 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
   try {
     const queryConditions = { $and: conditions };
     const totalCount = await ChargeEvent.count(queryConditions);
-    let changeToken = null;
+    let changeToken: number|null = null;
 
     if (!req.query['limit']) {
       const latestRecord = await ChargeEvent.findOne(queryConditions).sort({updatedAt: -1});
