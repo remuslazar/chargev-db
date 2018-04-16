@@ -32,7 +32,7 @@ const setReadACLs = (clientInfo: APIClientInfo, conditions: any[]) => {
 
 const setWriteACLs = (clientInfo: APIClientInfo, conditions: any[]) => {
   const source = clientInfo.source;
-  if (!source) {
+  if (source === undefined) {
     // noinspection ExceptionCaughtLocallyJS
     throw new Error('no source configured');
   }
