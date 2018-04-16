@@ -73,7 +73,6 @@ chargeEventSchema.set('toObject', {
   transform: (doc: any, ret: IChargeEventBase) => {
     delete ret._id;
     delete ret.createdAt;
-    delete ret.updatedAt;
 
     return ret;
   }
@@ -139,7 +138,6 @@ cloudkitCheckInSchema.set('toObject', {
   transform: (doc: any, ret: ICheckIn) => {
     delete ret._id;
     delete ret.createdAt;
-    delete ret.updatedAt;
 
     delete ret.recordChangeTag;
     delete ret.created;
@@ -162,7 +160,6 @@ ladelogSchema.set('toObject', {
   transform: (doc: any, ret: ILadelog) => {
     delete ret._id;
     delete ret.createdAt;
-    delete ret.updatedAt;
 
     return ret;
   }

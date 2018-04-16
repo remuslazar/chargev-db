@@ -79,8 +79,7 @@ There are some (all optional) query params:
 
 #### Default sorting
 
-The records are sorted by the modification timestamp in a descending order. The `limit` option can be used to fetch only
-the most recent records.
+The records are sorted by the modification timestamp in an **ascending** order.
 
 ### Delta Downloads
 
@@ -132,7 +131,8 @@ all saved records will be returned and also the count of records deleted.
 A `ChargeEvent` is a base type for all charge related events:
 
 ```typescript
-export interface ChargeEventBase {
+export interface ChargeEvent {
+  updatedAt: Date;
   deleted: boolean;
   source: number;
   timestamp: Date;
@@ -142,6 +142,13 @@ export interface ChargeEventBase {
   userID?: string;
 }
 ```
+
+### `updatedAt`
+
+The exact timestamp when this record was last updated. Note that this timestamp is distinct from the `timestamp`
+field, the latter being editable by the user (e.g. the user can adjust the timestamp up to 7 days in the past).
+
+You can save this value and use it for the parameter `changed-since`, to get only newer records.
 
 #### `deleted`
 
@@ -209,7 +216,7 @@ GoingElectric data structure.
 ### CheckIn Type
 
 ```typescript
-export interface CheckIn extends ChargeEventBase {
+export interface CheckIn extends ChargeEvent {
   reason: number;
   plug: string;
 }
@@ -264,7 +271,7 @@ public enum EVChargePoingConnectionPlugType: String {
 "Ladelog" event from GoingElectric
 
 ```typescript
-export interface Ladelog extends ChargeEventBase {
+export interface Ladelog extends ChargeEvent {
   modified: Date;
   isFault: boolean;
 }

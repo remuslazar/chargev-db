@@ -97,7 +97,7 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
 
     const query = ChargeEvent.find(queryConditions)
         .populate('user', 'nickname recordName')
-        .sort({'updatedAt': -1})
+        .sort({'updatedAt': 1})
         .limit(limit)
         .skip(skip);
     const events = await query;
