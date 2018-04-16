@@ -117,7 +117,22 @@ export interface PostEventsPayload {
 ```typescript
 export interface PostEventsResponse {
   savedRecords: any[],
-  deletedRecordCount: Number,
+  deletedRecordCount: number,
+}
+```
+
+`DELETE /events`
+
+Use this endpoint to purge all existing records tagged with your source identifier. This means, this commend will
+remove all records and data you uploaded to chargEV DB entirely. Useful for development or for security/privacy.
+
+This can also be used to purge all data and upload everything from scratch, if desired.
+
+##### Response
+
+```typescript
+export interface DeleteEventsResponse {
+  deletedRecordCount: number,
 }
 ```
 

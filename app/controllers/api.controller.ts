@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {Error} from "../server";
-import {ChargeEvent, CheckIn, Ladelog} from "../models/chargeevent.model";
+import {ChargeEvent, CheckIn, CKCheckIn, Ladelog} from "../models/chargeevent.model";
 import {AppRequest, jwtAuth} from "../auth/jwt-auth.middleware";
 import {Model, ValidationError} from "mongoose";
 import {ObjectID} from "bson";
@@ -149,6 +149,24 @@ router.get('/events/latest', async (req: AppRequest, res: Response, next: NextFu
 
 });
 
+export interface DeleteEventsResponse {
+  deletedRecordCount: number,
+}
+
+router.delete('/events', async (req: AppRequest, res: Response, next: NextFunction) => {
+  try {
+    const conditions: any[] = [];
+    setWriteACLs(req.clientInfo, conditions);
+    const response = await ChargeEvent.remove({$and: conditions}) as any;
+    console.log(response.result);
+    res.json(<DeleteEventsResponse>{
+      deletedRecordCount: response.result.n,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // noinspection JSUnusedGlobalSymbols
 export interface PostEventsPayload {
   recordsToSave?: any[],
@@ -172,6 +190,9 @@ router.post('/events', async (req: AppRequest, res: Response, next: NextFunction
         break;
       case 'Ladelog':
         ChargeEventType = Ladelog;
+        break;
+      case 'CKCheckIn':
+        ChargeEventType = CKCheckIn;
         break;
       default:
         // noinspection ExceptionCaughtLocallyJS
