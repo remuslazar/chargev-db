@@ -42,7 +42,6 @@ export interface CKCheckIn extends CKRecord, ChargeEventBase {
 }
 
 export interface Ladelog extends ChargeEventBase {
-  modified: Date;
   isFault: boolean;
 }
 
@@ -63,6 +62,7 @@ export interface ILadelog extends Ladelog, Document {
 export interface IChargeEventFault extends ChargeEventFault, Document {
 }
 
+// noinspection JSUnusedGlobalSymbols
 const chargeEventSchema = new Schema({
   source: { type: Number, index: true, required: true },
   timestamp: { type: Date, index: true, required: true },
@@ -163,7 +163,6 @@ cloudkitCheckInSchema.set('toObject', {
 
 const ladelogSchema = new Schema({
   isFault: Boolean,
-  modified: Date,
   nickname: String,
 });
 

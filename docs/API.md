@@ -303,7 +303,6 @@ public enum EVChargePoingConnectionPlugType: String {
 
 ```typescript
 export interface Ladelog extends ChargeEvent {
-  modified: Date;
   isFault: boolean;
 }
 ```
