@@ -95,8 +95,6 @@ app.use((req, res, next) => {
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = err;
-
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
