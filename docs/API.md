@@ -278,7 +278,7 @@ to specify which type is being used for a particular record.
 Using curl. Make sure you setup the JWT in the `$token` ENV var, e.g. using:
 
 ```bash
-export token=<my token>
+export token=MY_TOKEN
 ```
 
 #### Request

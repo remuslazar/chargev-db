@@ -33,7 +33,7 @@ custom expire time (in seconds).
 The CLI also allows validation of existing tokens:
 
 ```bash
-./api-cli.ts --verify --token <token>
+./api-cli.ts --verify --token MY_TOKEN
 ```
 
 This will verify the given token and also print out the JWT content (payload).
