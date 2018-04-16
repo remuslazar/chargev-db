@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "prestart": "tsc",
+    "postinstall": "tsc",
     "ts-node": "ts-node",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node build/app/server.js"
