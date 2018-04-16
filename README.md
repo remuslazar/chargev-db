@@ -22,9 +22,6 @@ export MONGODB_URI=mongodb://$(docker-machine ip default)/chargevdb
 Create a `.env` file for development:
 
 ```
-CLOUDKIT_KEY_ID=<here your cloudkit key>
-CLOUDKIT_CONTAINER=iCloud.info.lazar.EVPlugFinder
-CLOUDKIT_ENV=development
 API_JWT_SECRET=secret
 ```
 
@@ -43,22 +40,6 @@ https://dashboard.heroku.com/apps/chargev-db
 ### ENV vars
 
 For production set the same env vars listen in the `.env` file using e.g. `heroku config:add`.
-
-### CloudKit PEM Key
-
-Make sure you create a config var for the PEM file:
-
-```bash
-heroku config:add CLOUDKIT_PRIVATE_KEY_FILE="$(cat eckey.pem)"
-```
-
-Then use the supplied targets in `package.json` to create the key file on the local filesystem:
-
-```bash
-npm run create-cloudkit-key
-```
-
-Note: this hook will be called automatically after each `npm install` as well.
 
 ### Get the current MongoDB Dump
 

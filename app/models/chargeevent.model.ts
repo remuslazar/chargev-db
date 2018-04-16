@@ -12,10 +12,6 @@ export enum ChargeEventSource {
   goingElectric = 1,
 }
 
-export const allSourcesOtherThanChargEVSource = [
-    ChargeEventSource.goingElectric,
-];
-
 export interface ChargeEventBase extends MongooseTimestamps {
   source: ChargeEventSource;
   upstreamUpdatedAt: Date;

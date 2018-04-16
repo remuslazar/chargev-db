@@ -352,7 +352,7 @@ $ curl -qs -H "Authorization: Bearer $token" https://chargev-db.herokuapp.com/ap
          "comment" : "Typ 2 Ladeabbruch nach 1 min",
          "isFault" : true,
          "chargepoint" : "chargepoint-0-9304",
-         "source" : 1,
+         "source" : 1
       },
       {
          "chargepoint" : "chargepoint-0-7656",

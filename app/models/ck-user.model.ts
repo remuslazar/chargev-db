@@ -7,25 +7,6 @@ interface CKUser extends CKRecord {
 
 export interface ICKUser extends CKUser, Document {}
 
-export function getCKUserFromCKRecord(record: any): CKUser {
-
-  function getValue(fieldName: string) {
-    if (fieldName in record.fields) {
-      return record.fields[fieldName].value;
-    }
-    return null;
-  }
-
-  return {
-    recordName: record.recordName,
-    recordChangeTag: record.recordChangeTag,
-    created: record.created,
-    modified: record.modified,
-    deleted: record.deleted,
-    nickname: getValue('nickname'),
-  };
-}
-
 const ckUserSchema = new Schema({
   // CKRecord
   recordChangeTag: String,
