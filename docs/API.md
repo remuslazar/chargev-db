@@ -121,6 +121,9 @@ export interface PostEventsResponse {
 }
 ```
 
+The save operation will do a validation check and throw a 400 error if this fails. Else an array of
+all saved records will be returned and also the count of records deleted.
+
 `DELETE /events`
 
 Use this endpoint to purge all existing records tagged with your source identifier. This means, this commend will
@@ -136,8 +139,12 @@ export interface DeleteEventsResponse {
 }
 ```
 
-The save operation will do a validation check and throw a 400 error if this fails. Else an array of
-all saved records will be returned and also the count of records deleted.
+`GET /events/latest`
+
+This will fetch the "last inserted" record. Basically this will fetch the records using your client's source identifier
+and returns the latest one. This means the record with the highest `upstreamUpdatedAt` timestamp.
+
+Use this endpoint to get the last record inserted so you can implement a delta upload logic.  
 
 ## Models
 
@@ -148,6 +155,7 @@ A `ChargeEvent` is a base type for all charge related events:
 ```typescript
 export interface ChargeEvent {
   updatedAt: Date;
+  upstreamUpdatedAt: Date;
   deleted: boolean;
   source: number;
   timestamp: Date;
@@ -160,10 +168,18 @@ export interface ChargeEvent {
 
 ### `updatedAt`
 
-The exact timestamp when this record was last updated. Note that this timestamp is distinct from the `timestamp`
+The exact timestamp when this record was last updated in chargEV DB. Note that this timestamp is distinct from the `timestamp`
 field, the latter being editable by the user (e.g. the user can adjust the timestamp up to 7 days in the past).
 
-You can save this value and use it for the parameter `changed-since`, to get only newer records.
+You can use it for the parameter `changed-since`, to get only newer records.
+
+### `upstreamUpdatedAt`
+
+This is the timestamp when a specific record was modified on upstream. Because chargEV DB is an kind-of aggregation
+database, all records basically originates from other sources.
+
+There is an endpoint to fetch the "latest inserted charge event". This endpoint will use this field and fetches the
+latest one. Using this value you can implement a delta-upload algorithm, uploading only new records to chargEV DB.
 
 #### `deleted`
 

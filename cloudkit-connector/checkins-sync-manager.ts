@@ -3,7 +3,7 @@ import {
   ChargeEventSource,
   CheckIn,
   CKCheckIn,
-  ICheckIn,
+  ICheckIn, ICKCheckIn,
 } from "../app/models/chargeevent.model";
 import {CKUser, getCKUserFromCKRecord} from "../app/models/ck-user.model";
 import * as CloudKit from "../cloudkit/vendor/cloudkit";
@@ -24,7 +24,7 @@ export class CheckInsSyncManager {
       return null;
     }
 
-    return <CheckIn>{
+    return <CKCheckIn>{
       recordName: record.recordName,
       recordChangeTag: record.recordChangeTag,
       created: record.created,
@@ -124,7 +124,7 @@ export class CheckInsSyncManager {
     console.log(`Set ${checkRecordNamesToDelete.length} record(s) as deleted: [${checkRecordNamesToDelete.join(',')}]`);
   };
 
-  public async syncCheckInsFromCloudKit(purge = false): Promise<ICheckIn[]> {
+  public async syncCheckInsFromCloudKit(purge = false): Promise<ICKCheckIn[]> {
 
     if (purge) {
       await CKCheckIn.remove({});
@@ -178,7 +178,7 @@ export class CheckInsSyncManager {
     return updatedCheckIns;
   };
 
-  public async syncUsersFromCloudKit(checkIns: ICheckIn[], purge = false): Promise<void> {
+  public async syncUsersFromCloudKit(checkIns: ICKCheckIn[], purge = false): Promise<void> {
 
     if (purge) {
       await CKUser.remove({});

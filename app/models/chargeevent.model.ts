@@ -18,6 +18,7 @@ export const allSourcesOtherThanChargEVSource = [
 
 export interface ChargeEventBase extends MongooseTimestamps {
   source: ChargeEventSource;
+  upstreamUpdatedAt: Date;
   timestamp: Date;
   chargepoint: string; // e.g. chargepoint-0-3358
   comment: string;
@@ -30,7 +31,12 @@ export interface ChargeEventFault {
   deleted: true;
 }
 
-export interface CheckIn extends CKRecord, ChargeEventBase {
+export interface CheckIn extends ChargeEventBase {
+  reason: number;
+  plug?: string;
+}
+
+export interface CKCheckIn extends CKRecord, ChargeEventBase {
   reason: number;
   plug?: string;
 }
@@ -41,6 +47,10 @@ export interface Ladelog extends ChargeEventBase {
 }
 
 export interface ICheckIn extends CheckIn, Document {
+  user?: any; // reference to the user record
+}
+
+export interface ICKCheckIn extends CKCheckIn, Document {
   user?: any; // reference to the user record
 }
 
@@ -56,6 +66,7 @@ export interface IChargeEventFault extends ChargeEventFault, Document {
 const chargeEventSchema = new Schema({
   source: { type: Number, index: true, required: true },
   timestamp: { type: Date, index: true, required: true },
+  upstreamUpdatedAt: { type: Date, index: true, required: true, default: Date.now },
   chargepoint: { type: String, index: true, required: true, validate: {
       validator: function(v: string) {
         return /^chargepoint-\d+-\d+$/.test(v);
@@ -135,7 +146,7 @@ cloudkitCheckInSchema.path('userID').get(function (this: any) {
 });
 
 cloudkitCheckInSchema.set('toObject', {
-  transform: (doc: any, ret: ICheckIn) => {
+  transform: (doc: any, ret: ICKCheckIn) => {
     delete ret._id;
     delete ret.createdAt;
 
@@ -175,7 +186,7 @@ const chargeEventFault = new Schema({
 });
 
 export const ChargeEvent: Model<IChargeEventBase> = model<IChargeEventBase>('ChargeEvent', chargeEventSchema);
-export const CKCheckIn: Model<ICheckIn> = ChargeEvent.discriminator('CKCheckIn', cloudkitCheckInSchema);
+export const CKCheckIn: Model<ICKCheckIn> = ChargeEvent.discriminator('CKCheckIn', cloudkitCheckInSchema);
 export const CheckIn: Model<ICheckIn> = ChargeEvent.discriminator('CheckIn', checkInSchema);
 export const Ladelog: Model<ILadelog> = ChargeEvent.discriminator('Ladelog', ladelogSchema);
 // deleted records will be of this type
