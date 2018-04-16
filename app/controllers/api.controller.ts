@@ -134,7 +134,7 @@ router.get('/events/latest', async (req: AppRequest, res: Response, next: NextFu
   try {
     const queryConditions = { $and: conditions };
     const query = ChargeEvent.findOne(queryConditions)
-        .sort({'upstreamModifiedAt': -1});
+        .sort({'upstreamUpdatedAt': -1});
     const latestEvent = await query;
     if (!latestEvent) {
       return next(); // throw a 404 error
