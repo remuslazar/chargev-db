@@ -28,7 +28,7 @@ API_JWT_SECRET=secret
 ## Start the FE
 
 ```bash
-npm start
+npm run tsc ; npm start
 ```
 
 ## Heroku
