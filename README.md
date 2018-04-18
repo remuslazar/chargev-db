@@ -2,8 +2,11 @@
 
 ## Abstract
 
-This repository holds the code and tools for the chargEV "ChargeEvents" Database.
-This database has a public (Server-to-Server) API.
+This repository holds the codebase and tools (like a simple web-frontend to visualize latest records)
+for the chargEV DB. This database has a public (Server-to-Server) API which is implemented using
+this codebase.
+
+See the documentation the [docs](docs) folder for technical details of the API and the current API specification.
 
 ## Development
 
