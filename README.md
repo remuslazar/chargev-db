@@ -65,7 +65,3 @@ See the [LICENSE](LICENSE) file.
 ## Author
 
 Remus Lazar <remus@lazar.info>
-
-## Contribute
-
-See the [CONTRIBUTING](CONTRIBUTING) file.
