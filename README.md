@@ -25,7 +25,7 @@ Create a `.env` file for development:
 API_JWT_SECRET=secret
 ```
 
-## Start the FE
+### Start the FE
 
 ```bash
 npm run tsc ; npm start
@@ -57,3 +57,11 @@ mongoexport --uri "<MongoDB URI from Heroku>" -c chargeevents > chargeevents.jso
 ```bash
 mongoimport --uri $MONGODB_URI --drop -c chargeevents chargeevents.jsonl 
 ```
+
+## License
+
+See the [LICENSE](LICENSE) file.
+
+## Author
+
+Remus Lazar <remus@lazar.info>
