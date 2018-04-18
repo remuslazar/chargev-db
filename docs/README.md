@@ -20,6 +20,7 @@ MIT license (see the `LICENSE` file for details).
 ## TOC
 
 * [API Specification](API)
+* [chargEVDB Sync Logic and Timestamps](chargEVDBSync)
 * [API Legal Usage](API-legal-usage-DE) (German)
 
 ## Author
