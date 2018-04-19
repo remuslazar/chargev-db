@@ -156,7 +156,6 @@ router.delete('/events', async (req: AppRequest, res: Response, next: NextFuncti
     const conditions: any[] = [];
     setWriteACLs(req.clientInfo, conditions);
     const response = await ChargeEvent.remove({$and: conditions}) as any;
-    console.log(response.result);
     res.json(<DeleteEventsResponse>{
       deletedRecordCount: response.result.n,
     });
