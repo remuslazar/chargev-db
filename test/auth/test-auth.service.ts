@@ -17,4 +17,9 @@ export class TestAuthService {
   async getTestAuthJTW(): Promise<string> {
     return await this.service.generateToken(this.clientInfo, 900);
   }
+
+  async getExpiredAuthJTW(): Promise<string> {
+    return await this.service.generateToken(this.clientInfo, -1);
+  }
+
 }

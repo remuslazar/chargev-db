@@ -6,15 +6,10 @@ import {app} from "../../app/server";
 import * as mongoose from "mongoose";
 import {TestAuthService} from "../auth/test-auth.service";
 
-
 chai.use(chaiHttp);
 
 let jwt: string;
 const testAuthService = new TestAuthService();
-
-before(async() => {
-  jwt = await testAuthService.getTestAuthJTW();
-});
 
 after(() => {
   mongoose.disconnect(() => {
@@ -22,19 +17,55 @@ after(() => {
   });
 });
 
+function getURL(endpoint: string) {
+  return `/api/v1/${endpoint}`;
+}
+
 describe('API Basic Features', () => {
 
-  it('should return 403 if not authorized', async() => {
-    const res = await chai.request(app).get('/api/v1/events');
-    chai.expect(res.status).eq(403);
+  describe('JWT Auth', () => {
+
+    const eventsEndpointURL = getURL('events');
+
+    before(async() => {
+      jwt = await testAuthService.getTestAuthJTW();
+    });
+
+    it('should return 403 if not authorized', async() => {
+      const res = await chai.request(app).get(eventsEndpointURL);
+      chai.expect(res.status).eq(403);
+    });
+
+    const authenticatedRequest = (token: string) => {
+      return chai.request(app)
+          .get(eventsEndpointURL)
+          .set('Authorization', 'Bearer ' + token);
+    };
+
+    it('should authenticate using a JWT', async() => {
+      const res = await authenticatedRequest(jwt);
+      chai.expect(res.status).eq(200);
+      chai.expect(res.body.success).true;
+    });
+
+    it('should not authenticate using a bogus string', async() => {
+      const res = await authenticatedRequest('foo');
+      chai.expect(res.status).eq(403);
+      chai.expect(res.body.success).false;
+      chai.expect(res.body.message).contains('Failed');
+      chai.expect(res.body.message).contains('malformed');
+    });
+
+    it('should not authenticate using an expired token', async() => {
+      const expiredToken = await testAuthService.getExpiredAuthJTW();
+      const res = await authenticatedRequest(expiredToken);
+      chai.expect(res.status).eq(403);
+      chai.expect(res.body.success).false;
+      chai.expect(res.body.message).contains('Failed');
+      chai.expect(res.body.message).contains('expired');
+    });
+
   });
 
-  it('should authenticate using a JWT', async() => {
-    const request = chai.request(app);
-    const res = await request
-        .get('/api/v1/events')
-        .set('Authorization', 'Bearer ' + jwt);
-    chai.expect(res.status).eq(200);
-  });
 
 });
