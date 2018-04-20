@@ -45,7 +45,9 @@ logger.token('jwtAuthInfo', (req: AppRequest) => {
 });
 
 // don't log the static stuff
-app.use(logger(':method :url :status :response-time ms - :res[content-length] :jwtAuthInfo'));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(logger(':method :url :status :response-time ms - :res[content-length] :jwtAuthInfo'));
+}
 
 app.set('view engine', 'jade');
 app.set('trust proxy', 'loopback, linklocal, uniquelocal');
