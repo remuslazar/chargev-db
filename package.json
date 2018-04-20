@@ -10,7 +10,7 @@
     "tsc": "tsc",
     "postinstall": "tsc",
     "ts-node": "ts-node",
-    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "test": "mocha -r ts-node/register test/**/*.test.ts --exit",
     "start": "node build/app/server.js"
   },
   "repository": {
