@@ -152,7 +152,7 @@ describe('API Basic Features', async() => {
 
     });
 
-    describe('POST /events/latest', () => {
+    describe('POST /events', () => {
       it('should insert records', async () => {
 
         const recordToInsert = <ICheckIn>{
