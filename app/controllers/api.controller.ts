@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {Error} from "../server";
-import {ChargeEvent, CheckIn, CKCheckIn, Ladelog} from "../models/chargeevent.model";
+import {ChargeEvent, ChargeEventBase, CheckIn, CKCheckIn, Ladelog} from "../models/chargeevent.model";
 import {AppRequest, jwtAuth} from "../auth/jwt-auth.middleware";
 import {Model, ValidationError} from "mongoose";
 import {ObjectID} from "bson";
@@ -38,6 +38,15 @@ const setWriteACLs = (clientInfo: APIClientInfo, conditions: any[]) => {
   }
   conditions.push({source: source, deleted: {$ne: true}});
 };
+
+export interface GetEventsResponse {
+  success: boolean,
+  moreComing: boolean,
+  totalCount: number,
+  startToken: number,
+  changeToken: number,
+  events: ChargeEventBase[],
+}
 
 // API endpoints
 router.get('/events', async (req: AppRequest, res: Response, next: NextFunction) => {
@@ -106,7 +115,7 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
     const moreComing = remaining > 0;
     const startToken = moreComing ? skip + eventsCount : null;
 
-    return res.json({
+    return res.json(<GetEventsResponse>{
       success: true,
       moreComing: moreComing,
       totalCount: totalCount,
