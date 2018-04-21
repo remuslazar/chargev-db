@@ -57,7 +57,13 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
 
   // changed-since option
   if (req.query['changed-since'] || req.query['change-token']) {
-    const changedSince = new Date(req.query['changed-since'] || parseInt(req.query['change-token']));
+
+    let changedSinceOption = req.query['changed-since'];
+    if (changedSinceOption && changedSinceOption.match(/^\d+$/)) {
+      changedSinceOption = parseFloat(changedSinceOption);
+    }
+
+    const changedSince = new Date(changedSinceOption || parseFloat(req.query['change-token']));
     conditions.push({ updatedAt: { $gt: changedSince }});
 
     // select only those deleted records from the past, so the client can delete them. Newer deleted records do not
