@@ -324,6 +324,28 @@ describe('API Basic Features', async() => {
       });
     });
 
+    describe('GET /events changed-since Parameter', () => {
+
+      it('should fetch only newer records', async function() {
+
+        const insertedEvents: ChargeEventBase[] = [];
+        for(let i=0;i<20;i++) { insertedEvents.push(await insertChargeEvent()); }
+
+        const timestampOfTheThirdRecord = insertedEvents[2].updatedAt;
+
+        const response = await chai.request(app)
+            .get(getURL('events'))
+            .set('Authorization', 'Bearer ' + jwt)
+            .query({'changed-since': timestampOfTheThirdRecord});
+
+        chai.expect(response.status).eq(200);
+
+        let apiResponse = response.body as GetEventsResponse;
+        chai.expect(apiResponse.events.length).eql(insertedEvents.length-3, 'the logic should skip the first 3 records');
+
+      });
+    });
+
   })
 
 });
