@@ -107,14 +107,25 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 /**
  * Connect to MongoDB.
  */
-// mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://mongodb', {
-  useMongoClient: true,
-});
+const MONGODB_URI = process.env.MONGODB_URI;
 
-mongoose.connection.on("error", () => {
-  console.log("MongoDB connection error. Please make sure MongoDB is running.");
-  process.exit();
+if (!MONGODB_URI) {
+  console.error('MongoDB configuration error: MONGODB_URI env var not configured.');
+  process.exit(10);
+} else {
+  mongoose.connect(MONGODB_URI, {
+    useMongoClient: true,
+  }, (err) => {
+    if (err) {
+      console.log(`MongoDB configuration error: ${err.message}.`);
+      process.exit(10);
+    }
+  });
+}
+
+mongoose.connection.on("error", (err) => {
+  console.log(`MongoDB connection error: ${err.message}. Please make sure MongoDB is running.`);
+  process.exit(1);
 });
 
 app.listen(port, () => {
