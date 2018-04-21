@@ -10,7 +10,7 @@
     "tsc": "tsc",
     "postinstall": "tsc",
     "ts-node": "ts-node",
-    "test": "mocha --recursive --glob '*.test.js' build/test --exit",
+    "test": "mocha --recursive --glob '*.test.js' build/test --slow 150 --exit",
     "start": "node build/app/server.js"
   },
   "repository": {
