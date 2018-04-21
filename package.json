@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "lint": "tslint -c tslint.json app/**/*.ts",
+    "lint": "tslint -c tslint.json **/*.ts",
     "postinstall": "tsc",
     "ts-node": "ts-node",
     "test": "mocha --recursive --glob '*.test.js' build/test --slow 150 --exit",
