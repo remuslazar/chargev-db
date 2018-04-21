@@ -14,3 +14,7 @@ env:
 cache:
   directories:
     - "node_modules"
+
+script:
+  - npm run lint
+  - npm test
