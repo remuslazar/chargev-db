@@ -254,6 +254,45 @@ describe('API Basic Features', async() => {
       });
     });
 
+    describe('GET /events Delta Download Feature', () => {
+      it('should fetch only new records using a change token', async () => {
+        await insertManyChargeEvents(2);
+
+        let response = await chai.request(app).get(getURL('events')).set('Authorization', 'Bearer ' + jwt);
+        chai.expect(response.status).eq(200);
+
+        const firstAPIResponse = response.body as GetEventsResponse;
+        chai.expect(firstAPIResponse.moreComing).false;
+        chai.expect(firstAPIResponse.totalCount).eql(2);
+        chai.expect(firstAPIResponse.changeToken).exist;
+
+        response = await chai.request(app)
+            .get(getURL('events'))
+            .set('Authorization', 'Bearer ' + jwt)
+            .query({ 'change-token': firstAPIResponse.changeToken});
+        chai.expect(response.status).eq(200);
+        const secondAPIResponse = response.body as GetEventsResponse;
+
+        chai.expect(secondAPIResponse.events.length).eql(0, 'expected no new records using the change-token');
+
+        // we insert 3 more records
+        await insertManyChargeEvents(3);
+
+        // send a subsequent request using the last change-token
+        // we expect to get only the 3 new records
+        response = await chai.request(app)
+            .get(getURL('events'))
+            .set('Authorization', 'Bearer ' + jwt)
+            .query({ 'change-token': firstAPIResponse.changeToken});
+        chai.expect(response.status).eq(200);
+        const thirdAPIResponse = response.body as GetEventsResponse;
+
+        chai.expect(thirdAPIResponse.totalCount).eql(3, 'expected 3 new records using a change-token');
+        chai.expect(thirdAPIResponse.events.length).eql(3, 'expected 3 new records using a change-token');
+
+      });
+    });
+
   });
 
 
