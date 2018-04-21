@@ -233,7 +233,7 @@ describe('API Basic Features', async() => {
 
     describe('GET /events startToken Feature', () => {
 
-      it('should fetch all available records in batches', async function() {
+      it('should fetch all available records in batches', async function () {
 
         // noinspection TypeScriptValidateJSTypes
         this.slow(1200);
@@ -254,7 +254,7 @@ describe('API Basic Features', async() => {
           const response = await chai.request(app)
               .get(getURL('events'))
               .set('Authorization', 'Bearer ' + jwt)
-              .query({ 'start-token': apiResponse.startToken});
+              .query({'start-token': apiResponse.startToken});
           chai.expect(response.status).eq(200);
           apiResponse = response.body as GetEventsResponse;
           totalCount += apiResponse.events.length;
@@ -279,7 +279,7 @@ describe('API Basic Features', async() => {
         response = await chai.request(app)
             .get(getURL('events'))
             .set('Authorization', 'Bearer ' + jwt)
-            .query({ 'change-token': firstAPIResponse.changeToken});
+            .query({'change-token': firstAPIResponse.changeToken});
         chai.expect(response.status).eq(200);
         const secondAPIResponse = response.body as GetEventsResponse;
 
@@ -293,7 +293,7 @@ describe('API Basic Features', async() => {
         response = await chai.request(app)
             .get(getURL('events'))
             .set('Authorization', 'Bearer ' + jwt)
-            .query({ 'change-token': firstAPIResponse.changeToken});
+            .query({'change-token': firstAPIResponse.changeToken});
         chai.expect(response.status).eq(200);
         const thirdAPIResponse = response.body as GetEventsResponse;
 
@@ -305,7 +305,7 @@ describe('API Basic Features', async() => {
 
     describe('GET /events limit Parameter', () => {
 
-      it('should limit the fetched result set', async function() {
+      it('should limit the fetched result set', async function () {
 
         await insertManyChargeEvents(13);
 
@@ -344,8 +344,23 @@ describe('API Basic Features', async() => {
         chai.expect(apiResponse.events.length).eql(insertedEvents.length-3, 'the logic should skip the first 3 records');
 
       });
+
+      it('should work with numeric timestamp values', async function () {
+
+        const timestamp = (new Date()).getTime();
+        console.log(timestamp);
+
+        const response = await chai.request(app)
+            .get(getURL('events'))
+            .set('Authorization', 'Bearer ' + jwt)
+            .query({'changed-since': timestamp});
+
+        chai.expect(response.status).eq(200);
+
+      });
+
     });
 
-  })
+  });
 
 });
