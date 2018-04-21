@@ -70,7 +70,7 @@ if (basicAuthMiddleware) {
 app.use('/events', chargeeventsController);
 app.use('/', rootController);
 
-const packageInfo = require('../../package.json');
+const packageInfo = require(path.join(__dirname, '../../package.json'));
 app.locals.packageInfo = packageInfo;
 app.locals.moment = require('moment');
 app.locals.geToolsViewHelper = new GEToolsViewHelper('http://ge-tools.herokuapp.com');
