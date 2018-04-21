@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 import bodyParser = require('body-parser');
 import {Request, Response, NextFunction} from 'express';
 import * as mongoose from 'mongoose';
-import * as basicAuth from 'express-basic-auth'
+import * as basicAuth from 'express-basic-auth';
 import {API_JWT_SECRET} from "./auth/auth.constants";
 import {rootController} from './controllers/root.controller';
 import {apiController} from "./controllers/api.controller";
@@ -22,7 +22,7 @@ app.set(API_JWT_SECRET, process.env[API_JWT_SECRET]);
 let basicAuthMiddleware: any = null;
 
 if (process.env['BASIC_AUTH_USERNAME'] && process.env['BASIC_AUTH_PASSWORD']) {
-  let basicAuthUsers = {} as any;
+  const basicAuthUsers = {} as any;
   const username: string = <string>process.env['BASIC_AUTH_USERNAME'];
   basicAuthUsers[username] = process.env['BASIC_AUTH_PASSWORD'];
 

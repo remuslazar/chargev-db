@@ -8,6 +8,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
+    "lint": "tslint -c tslint.json app/**/*.ts",
     "postinstall": "tsc",
     "ts-node": "ts-node",
     "test": "mocha --recursive --glob '*.test.js' build/test --slow 150 --exit",
@@ -64,6 +65,7 @@
     "mocha": "^5.1.1",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
+    "tslint": "^5.9.1",
     "typings": "^2.1.1"
   }
 }

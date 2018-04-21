@@ -14,11 +14,11 @@ export class TestAuthService {
     acl: {},
   };
 
-  async getTestAuthJTW(): Promise<string> {
+  public async getTestAuthJTW(): Promise<string> {
     return await this.service.generateToken(this.clientInfo, 900);
   }
 
-  async getExpiredAuthJTW(): Promise<string> {
+  public async getExpiredAuthJTW(): Promise<string> {
     return await this.service.generateToken(this.clientInfo, -1);
   }
 

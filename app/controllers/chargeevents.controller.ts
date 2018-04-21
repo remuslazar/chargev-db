@@ -25,7 +25,7 @@ router.get('/', async (req, res, next) => {
     res.render('chargeevents', {
       count: count,
       events: events,
-    })
+    });
   } catch(err) {
     next(err);
   }
@@ -55,7 +55,7 @@ router.get('/:chargepointRef', async (req, res, next) => {
       chargepointRef: chargepointRef,
       count: count,
       events: events,
-    })
+    });
   } catch(err) {
     next(err);
   }

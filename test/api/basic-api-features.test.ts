@@ -316,7 +316,7 @@ describe('API Basic Features', async() => {
 
         chai.expect(response.status).eq(200);
 
-        let apiResponse = response.body as GetEventsResponse;
+        const apiResponse = response.body as GetEventsResponse;
         chai.expect(apiResponse.moreComing).true;
         chai.expect(apiResponse.totalCount).eql(13, 'total count should be 13');
         chai.expect(apiResponse.events.length).eql(10, 'returned events count should be 10');
@@ -345,7 +345,7 @@ describe('API Basic Features', async() => {
 
         chai.expect(response.status).eq(200);
 
-        let apiResponse = response.body as GetEventsResponse;
+        const apiResponse = response.body as GetEventsResponse;
         chai.expect(apiResponse.events.length).eql(insertedEvents.length-3, 'the logic should skip the first 3 records');
 
       });

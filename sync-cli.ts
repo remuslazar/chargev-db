@@ -37,12 +37,12 @@ const main = async () => {
       console.error(err);
     }
 
-    process.exit(1)
+    process.exit(1);
   }
 };
 
 main().then(() => {
-  process.exit()
+  process.exit();
 }, err => {
   console.error(err);
 });

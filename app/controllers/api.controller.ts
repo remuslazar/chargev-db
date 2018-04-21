@@ -40,12 +40,12 @@ const setWriteACLs = (clientInfo: APIClientInfo, conditions: any[]) => {
 };
 
 export interface GetEventsResponse {
-  success: boolean,
-  moreComing: boolean,
-  totalCount: number,
-  startToken: number,
-  changeToken: number,
-  events: ChargeEventBase[],
+  success: boolean;
+  moreComing: boolean;
+  totalCount: number;
+  startToken: number;
+  changeToken: number;
+  events: ChargeEventBase[];
 }
 
 // API endpoints
@@ -79,7 +79,7 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
           // updated record, the client does already know about it
           createdAt: { $lte: changedSince },
         },
-      ]
+      ],
     });
   } else {
     // initially we don't want deleted records
@@ -89,13 +89,13 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
   // limit option
   let limit = MAX_RECORD_COUNT; // maximum limit
   if (req.query['limit']) {
-    limit = Math.min(limit, parseInt(req.query['limit']));
+    limit = Math.min(limit, parseInt(req.query['limit'], 10));
   }
 
   // start-token option
   let skip = 0;
   if (req.query['start-token']) {
-    skip = parseInt(req.query['start-token']);
+    skip = parseInt(req.query['start-token'], 10);
   }
 
   try {
@@ -111,7 +111,7 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
     }
 
     const query = ChargeEvent.find(queryConditions)
-        .sort({'updatedAt': 1})
+        .sort({updatedAt: 1})
         .limit(limit)
         .skip(skip);
     const events = await query;
@@ -128,7 +128,7 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
       startToken: startToken,
       changeToken: changeToken,
       events: events
-          .map(event => event.toObject({virtuals: true, versionKey: false, minimize: false}))
+          .map(event => event.toObject({virtuals: true, versionKey: false, minimize: false})),
     });
   } catch (err) {
     next(err);
@@ -149,7 +149,7 @@ router.get('/events/latest', async (req: AppRequest, res: Response, next: NextFu
   try {
     const queryConditions = { $and: conditions };
     const query = ChargeEvent.findOne(queryConditions)
-        .sort({'upstreamUpdatedAt': -1});
+        .sort({upstreamUpdatedAt: -1});
     const latestEvent = await query;
     if (!latestEvent) {
       return next(); // throw a 404 error
@@ -163,7 +163,7 @@ router.get('/events/latest', async (req: AppRequest, res: Response, next: NextFu
 });
 
 export interface DeleteEventsResponse {
-  deletedRecordCount: number,
+  deletedRecordCount: number;
 }
 
 router.delete('/events', async (req: AppRequest, res: Response, next: NextFunction) => {
@@ -181,13 +181,13 @@ router.delete('/events', async (req: AppRequest, res: Response, next: NextFuncti
 
 // noinspection JSUnusedGlobalSymbols
 export interface PostEventsPayload {
-  recordsToSave?: any[],
-  recordIDsToDelete?: any[],
+  recordsToSave?: any[];
+  recordIDsToDelete?: any[];
 }
 
 export interface PostEventsResponse {
-  savedRecords: any[],
-  deletedRecordCount: Number,
+  savedRecords: any[];
+  deletedRecordCount: number;
 }
 
 router.post('/events', async (req: AppRequest, res: Response, next: NextFunction) => {
@@ -234,7 +234,7 @@ router.post('/events', async (req: AppRequest, res: Response, next: NextFunction
       const response = await ChargeEventType.update(
           { $and: writeConditions },
           {deleted: true, modifiedAt: Date.now()},
-          { multi: true }
+          { multi: true },
       );
       deletedRecordCount = response.nModified;
     }
