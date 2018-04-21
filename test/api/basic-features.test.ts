@@ -347,13 +347,10 @@ describe('API Basic Features', async() => {
 
       it('should work with numeric timestamp values', async function () {
 
-        const timestamp = (new Date()).getTime();
-        console.log(timestamp);
-
         const response = await chai.request(app)
             .get(getURL('events'))
             .set('Authorization', 'Bearer ' + jwt)
-            .query({'changed-since': timestamp});
+            .query({'changed-since': (new Date()).getTime()});
 
         chai.expect(response.status).eq(200);
 
