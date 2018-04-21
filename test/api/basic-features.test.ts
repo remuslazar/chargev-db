@@ -302,6 +302,28 @@ describe('API Basic Features', async() => {
 
       });
     });
+
+    describe('GET /events limit Parameter', () => {
+
+      it('should limit the fetched result set', async function() {
+
+        await insertManyChargeEvents(13);
+
+        const response = await chai.request(app)
+            .get(getURL('events'))
+            .set('Authorization', 'Bearer ' + jwt)
+            .query({limit: 10});
+
+        chai.expect(response.status).eq(200);
+
+        let apiResponse = response.body as GetEventsResponse;
+        chai.expect(apiResponse.moreComing).true;
+        chai.expect(apiResponse.totalCount).eql(13, 'total count should be 13');
+        chai.expect(apiResponse.events.length).eql(10, 'returned events count should be 10');
+
+      });
+    });
+
   })
 
 });
