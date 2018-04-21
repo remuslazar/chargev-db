@@ -35,6 +35,32 @@ describe('API Basic Features', async() => {
     jwt = await testAuthService.getTestAuthJTW();
   });
 
+  const insertChargeEvent = async (source?: number): Promise<ChargeEventBase> => {
+    const singleEvent = new ChargeEvent();
+    singleEvent.source = source !== undefined ? source : testAuthService.clientInfo.source;
+    singleEvent.chargepoint = 'chargepoint-0-1234';
+    singleEvent.timestamp = new Date();
+    singleEvent.upstreamUpdatedAt = new Date();
+    return await singleEvent.save();
+  };
+
+  const insertManyChargeEvents = async (count: number, source?: number): Promise<ChargeEventBase[]> => {
+    const eventsToInsert: ChargeEventBase[] = [];
+    for(let i=0; i<count; i++) {
+      const singleEvent = new ChargeEvent();
+      singleEvent.source = source !== undefined ? source : testAuthService.clientInfo.source;
+      singleEvent.chargepoint = 'chargepoint-0-1234';
+      singleEvent.timestamp = new Date();
+      singleEvent.upstreamUpdatedAt = new Date();
+      eventsToInsert.push(singleEvent);
+    }
+    return await ChargeEvent.insertMany(eventsToInsert);
+  };
+
+  beforeEach(async () => {
+    await ChargeEvent.remove({});
+  });
+
   describe('JWT Auth', () => {
 
     const eventsEndpointURL = getURL('events');
@@ -76,32 +102,6 @@ describe('API Basic Features', async() => {
   });
 
   describe('API CRUD Methods', () => {
-
-    const insertChargeEvent = async (source?: number): Promise<ChargeEventBase> => {
-      const singleEvent = new ChargeEvent();
-      singleEvent.source = source !== undefined ? source : testAuthService.clientInfo.source;
-      singleEvent.chargepoint = 'chargepoint-0-1234';
-      singleEvent.timestamp = new Date();
-      singleEvent.upstreamUpdatedAt = new Date();
-      return await singleEvent.save();
-    };
-
-    const insertManyChargeEvents = async (count: number, source?: number): Promise<ChargeEventBase[]> => {
-      const eventsToInsert: ChargeEventBase[] = [];
-      for(let i=0; i<count; i++) {
-        const singleEvent = new ChargeEvent();
-        singleEvent.source = source !== undefined ? source : testAuthService.clientInfo.source;
-        singleEvent.chargepoint = 'chargepoint-0-1234';
-        singleEvent.timestamp = new Date();
-        singleEvent.upstreamUpdatedAt = new Date();
-        eventsToInsert.push(singleEvent);
-      }
-      return await ChargeEvent.insertMany(eventsToInsert);
-    };
-
-    beforeEach(async () => {
-      await ChargeEvent.remove({});
-    });
 
     describe('GET /events', () => {
 
@@ -227,6 +227,10 @@ describe('API Basic Features', async() => {
       });
     });
 
+  });
+
+  describe('API Additional Features', () => {
+
     describe('GET /events startToken Feature', () => {
       it('should fetch all available records in batches', async () => {
         await insertManyChargeEvents(1000);
@@ -292,8 +296,6 @@ describe('API Basic Features', async() => {
 
       });
     });
-
-  });
-
+  })
 
 });
