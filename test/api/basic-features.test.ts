@@ -328,8 +328,13 @@ describe('API Basic Features', async() => {
 
       it('should fetch only newer records', async function() {
 
+        const timeout = (ms: number) => new Promise(res => setTimeout(res, ms));
+
         const insertedEvents: ChargeEventBase[] = [];
-        for(let i=0;i<20;i++) { insertedEvents.push(await insertChargeEvent()); }
+        for(let i=0;i<20;i++) {
+          insertedEvents.push(await insertChargeEvent());
+          await timeout(1);
+        }
 
         const timestampOfTheThirdRecord = insertedEvents[2].updatedAt;
 
