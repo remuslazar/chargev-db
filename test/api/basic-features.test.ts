@@ -232,7 +232,13 @@ describe('API Basic Features', async() => {
   describe('API Additional Features', () => {
 
     describe('GET /events startToken Feature', () => {
-      it('should fetch all available records in batches', async () => {
+
+      it('should fetch all available records in batches', async function() {
+
+        // noinspection TypeScriptValidateJSTypes
+        this.slow(1200);
+        this.timeout(10000);
+
         await insertManyChargeEvents(1000);
 
         const response = await chai.request(app).get(getURL('events')).set('Authorization', 'Bearer ' + jwt);
