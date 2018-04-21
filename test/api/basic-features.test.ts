@@ -86,6 +86,19 @@ describe('API Basic Features', async() => {
       return await singleEvent.save();
     };
 
+    const insertManyChargeEvents = async (count: number, source?: number): Promise<ChargeEventBase[]> => {
+      const eventsToInsert: ChargeEventBase[] = [];
+      for(let i=0; i<count; i++) {
+        const singleEvent = new ChargeEvent();
+        singleEvent.source = source !== undefined ? source : testAuthService.clientInfo.source;
+        singleEvent.chargepoint = 'chargepoint-0-1234';
+        singleEvent.timestamp = new Date();
+        singleEvent.upstreamUpdatedAt = new Date();
+        eventsToInsert.push(singleEvent);
+      }
+      return await ChargeEvent.insertMany(eventsToInsert);
+    };
+
     beforeEach(async () => {
       await ChargeEvent.remove({});
     });
@@ -211,6 +224,33 @@ describe('API Basic Features', async() => {
         chai.expect(response.status).eq(200);
         const count = await ChargeEvent.find({}).count();
         chai.expect(count).eql(1);
+      });
+    });
+
+    describe('GET /events startToken Feature', () => {
+      it('should fetch all available records in batches', async () => {
+        await insertManyChargeEvents(1000);
+
+        const response = await chai.request(app).get(getURL('events')).set('Authorization', 'Bearer ' + jwt);
+        chai.expect(response.status).eq(200);
+
+        let apiResponse = response.body as GetEventsResponse;
+        chai.expect(apiResponse.moreComing).true;
+        chai.expect(apiResponse.totalCount).eql(1000);
+
+        let totalCount = apiResponse.events.length;
+
+        while (apiResponse.moreComing) {
+          const response = await chai.request(app)
+              .get(getURL('events'))
+              .set('Authorization', 'Bearer ' + jwt)
+              .query({ 'start-token': apiResponse.startToken});
+          chai.expect(response.status).eq(200);
+          apiResponse = response.body as GetEventsResponse;
+          totalCount += apiResponse.events.length;
+        }
+
+        chai.expect(totalCount).eql(1000);
       });
     });
 
