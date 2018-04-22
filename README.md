@@ -1,4 +1,4 @@
-# chargEV DB
+# chargEV DB [![Build Status](https://travis-ci.org/remuslazar/chargev-db.svg?branch=master)](https://travis-ci.org/remuslazar/chargev-db)
 
 ## Abstract
 
