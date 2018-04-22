@@ -7,5 +7,5 @@ router.get('/', (req: Request, res: Response) => {
   });
 });
 
-// Export the express.Router() instance to be used by server.ts
+// Export the express.Router() instance to be used by app.ts
 export const rootController: Router = router;

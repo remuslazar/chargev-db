@@ -10,6 +10,7 @@
     "tsc": "tsc",
     "lint": "tslint -c tslint.json **/*.ts",
     "postinstall": "tsc",
+    "mocha": "mocha",
     "ts-node": "ts-node",
     "test": "mocha --recursive --glob '*.test.js' build/test --slow 150 --exit",
     "start": "node build/app/server.js"

@@ -1,21 +1,21 @@
-import {app} from "../../app/server";
+import {app} from "../../app/app";
 import * as chai from 'chai';
 import request = require('request-promise');
 import {StatusCodeError} from "request-promise/errors";
 import {TestAuthService} from "../auth/test-auth.service";
+import {server} from "../../app/server";
 
 describe('App Basic Features', function() {
 
   // noinspection TypeScriptValidateJSTypes
   this.slow(1500);
   this.timeout(5000);
-  const port = 3999;
-  let baseURL: string;
 
-  // make sure to start express on our custom port
-  before(done => {
-    app.listen(port, () => {
-      baseURL = `http://localhost:${port}/`;
+  const port = app.get('port');
+  const baseURL = `http://localhost:${port}/`;
+
+  after(done => {
+    server.close(() => {
       done();
     });
   });

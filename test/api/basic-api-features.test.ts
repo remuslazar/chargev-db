@@ -9,10 +9,9 @@ if (process.env.MONGODB_URI && !(<string>process.env.MONGODB_URI).match(/-test$/
 
 import * as chai from 'chai';
 import chaiHttp = require("chai-http");
-import {app} from "../../app/server";
-import * as mongoose from "mongoose";
 import {TestAuthService} from "../auth/test-auth.service";
 import {ChargeEvent, ChargeEventBase, ICheckIn} from "../../app/models/chargeevent.model";
+import {app} from "../../app/app";
 
 chai.use(chaiHttp);
 
@@ -25,11 +24,6 @@ function getURL(endpoint: string) {
 describe('API Basic Features', async() => {
 
   let jwt: string;
-
-  after(async() => {
-    await mongoose.connection.close();
-    await mongoose.disconnect(async() => {});
-  });
 
   before(async() => {
     jwt = await testAuthService.getTestAuthJTW();
