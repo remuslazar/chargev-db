@@ -65,14 +65,14 @@ const chargeEventSchema = new Schema({
       validator: function(v: string) {
         return /^chargepoint-\d+-\d+$/.test(v);
       },
-      message: '"{VALUE}" is not a valid chargepoint reference.'
-    }
+      message: '"{VALUE}" is not a valid chargepoint reference.',
+    },
   },
   comment: String,
   nickname: String,
 }, {timestamps: true});
 
-chargeEventSchema.index({'updatedAt': 1});
+chargeEventSchema.index({updatedAt: 1});
 
 chargeEventSchema.set('toObject', {
   transform: (doc: any, ret: IChargeEventBase) => {
@@ -80,7 +80,7 @@ chargeEventSchema.set('toObject', {
     delete ret.createdAt;
 
     return ret;
-  }
+  },
 });
 
 export const cloudkitCheckInSchema = new Schema({
@@ -138,7 +138,7 @@ cloudkitCheckInSchema.set('toObject', {
     delete ret.recordName;
 
     return ret;
-  }
+  },
 });
 
 const ladelogSchema = new Schema({
@@ -152,7 +152,7 @@ ladelogSchema.set('toObject', {
     delete ret.createdAt;
 
     return ret;
-  }
+  },
 });
 
 // for "Ladelogs" from GoingElectric we currently do use a hardcoded nickname

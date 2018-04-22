@@ -8,7 +8,7 @@ export interface APIClientInfo {
   acl: {
     /** ChargeEvent.source filter. List all allowed sources here */
     sources?: number[];
-  }
+  };
 }
 
 export class JWTAuthService {
@@ -19,13 +19,13 @@ export class JWTAuthService {
     }
   }
 
-  async generateToken(clientInfo: APIClientInfo, expiresSeconds: number): Promise<string> {
+  public async generateToken(clientInfo: APIClientInfo, expiresSeconds: number): Promise<string> {
     return await sign(clientInfo, this.secret, {
       expiresIn: expiresSeconds,
     });
   }
 
-  async verifyAndDecode(token: string) {
+  public async verifyAndDecode(token: string) {
     return await verify(token, this.secret) as APIClientInfo;
   }
 

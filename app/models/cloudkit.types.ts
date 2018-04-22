@@ -7,7 +7,7 @@ export interface CKTimestamp {
 export interface CKRecord {
   recordName: string;
   recordChangeTag: string;
-  deleted: boolean
+  deleted: boolean;
   created: CKTimestamp;
   modified: CKTimestamp;
 }

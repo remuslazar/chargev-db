@@ -13,7 +13,7 @@ const main = async() => {
       throw new Error('parameter mismatch.');
     }
 
-    let source = parseInt(argv.source);
+    const source = parseInt(argv.source, 10);
 
     let sources = argv.sources;
     if (!(sources instanceof Array)) { sources = [sources]; }
@@ -26,7 +26,7 @@ const main = async() => {
       type: type,
       acl: {
         sources: argv.sources !== undefined ? sources : undefined,
-      }
+      },
     };
 
     const expires = argv.expires || 2 * 30 * 24 * 3600; // default: expires in 2 months

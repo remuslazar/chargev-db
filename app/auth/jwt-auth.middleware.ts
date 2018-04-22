@@ -1,12 +1,12 @@
 import {Request, Response, NextFunction} from "express";
 import {APIClientInfo, JWTAuthService} from "./jwt-auth.service";
-import {app} from "../server";
+import {app} from "../app";
 import {API_JWT_SECRET} from "./auth.constants";
 
 // This middleware will extend the request object
 export interface AppRequest extends Request {
   clientInfo: APIClientInfo;
-  authError?: string
+  authError?: string;
 }
 
 /**
