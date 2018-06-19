@@ -208,6 +208,33 @@ describe('API Basic Features', async() => {
         chai.expect(response.status).eq(400);
       });
 
+      it('should insert record with plug=null', async () => {
+
+        const recordToInsert = <ICheckIn>{
+          timestamp: new Date(),
+          comment: 'foo comment',
+          chargepoint: 'chargepoint-0-1234',
+          reason: 10,
+          plug: null,
+        };
+
+        const postEventsPayload = <PostEventsPayload>{
+          recordsToSave: [ recordToInsert],
+        };
+
+        const response = await chai.request(app)
+            .post(getURL('events'))
+            .set('Authorization', 'Bearer ' + jwt)
+            .send(postEventsPayload);
+
+        chai.expect(response.status).eq(200);
+
+        const returnedEvent = response.body as PostEventsResponse;
+
+        chai.expect(returnedEvent.savedRecords.length).eql(1);
+        const insertedRecord = returnedEvent.savedRecords[0] as ICheckIn;
+        chai.expect(insertedRecord.chargepoint).eql(recordToInsert.chargepoint);
+      });
     });
 
     describe('DELETE /events', () => {

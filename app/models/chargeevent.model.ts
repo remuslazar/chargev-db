@@ -29,7 +29,7 @@ export interface ChargeEventFault {
 
 export interface CheckIn extends ChargeEventBase {
   reason: number;
-  plug?: string;
+  plug?: string|null;
 }
 
 export interface CKCheckIn extends CKRecord, ChargeEventBase {
@@ -115,6 +115,7 @@ export const checkInSchema = new Schema({
       'CEERot',
       'Schuko',
       'TeslaSupercharger',
+      null,
     ] },
   nickname: { type: String, required: false },
   userID: { type: String, required: false },
