@@ -52,7 +52,7 @@ The current mongoDB User and Pass are stored in the `MONGODB_URI` config var (Se
 URI can be used.
 
 ```bash
-mongoexport --uri "<MongoDB URI from Heroku>" -c chargeevents > chargeevents.jsonl 
+mongoexport --uri "$(heroku config:get MONGODB_URI)" -c chargeevents > chargeevents.jsonl 
 ```
 
 ### Import a MongoDB Dump
