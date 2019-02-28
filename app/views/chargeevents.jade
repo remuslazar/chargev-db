@@ -2,6 +2,10 @@ extends layout
 
 block content
   h1 ChargeEvents (#{count})
+  if newerThan
+    p Active filter: showing all records newer than: #{moment(newerThan).format('ll')}.
+  if limit
+    p Active display limit: max #{limit} record(s).
   table.app-chargeevents
     thead
       tr

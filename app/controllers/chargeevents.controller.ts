@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import {ChargeEvent} from "../models/chargeevent.model";
+import * as moment from "moment";
 
 const router: Router = Router();
 
@@ -16,14 +17,31 @@ router.get('/', async (req, res, next) => {
       sort.timestamp = -1;
     }
 
+    let limit: number = req.query['limit'] ? +req.query['limit'] : 0;
+
     const conditions = {};
+    let newerThan: Date|null = null;
+
+    if (req.query['newer-than']) {
+      newerThan = moment.utc(req.query['newer-than']).toDate();
+      if (newerThan) {
+        conditions['timestamp'] = {$gt: newerThan};
+      }
+    } else {
+      if (limit === 0) {
+        limit = 100;
+      }
+    }
+
     const count = await ChargeEvent.count(conditions);
     const events = await ChargeEvent
         .find(conditions)
-        .limit(100)
+        .limit(limit)
         .sort(sort);
     res.render('chargeevents', {
       count: count,
+      limit: limit,
+      newerThan: newerThan,
       events: events,
     });
   } catch(err) {
