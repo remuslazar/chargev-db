@@ -37,9 +37,10 @@ app.set('views', path.join(__dirname, '../../app/views'));
 app.use(express.static(path.join(__dirname, '../../app/public')));
 
 // we want to log the clientID of the JWT auth token or auth failures
-logger.token('jwtAuthInfo', (req: AppRequest) => {
-  return req.clientInfo ? `[API clientID: ${req.clientInfo.clientID}]`
-      : req.authError ? `[API auth error: ${req.authError}]` : '';
+logger.token('jwtAuthInfo', (req: Request) => {
+  const appRequest = req as AppRequest;
+  return appRequest.clientInfo ? `[API clientID: ${appRequest.clientInfo.clientID}]`
+      : appRequest.authError ? `[API auth error: ${appRequest.authError}]` : '';
 });
 
 // don't log the static stuff
@@ -47,7 +48,7 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(logger(':method :url :status :response-time ms - :res[content-length] :jwtAuthInfo'));
 }
 
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 
 app.use(bodyParser.json({limit: '50mb'}));
@@ -99,7 +100,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error.pug');
 });
 
 (mongoose as any).Promise = global.Promise;
@@ -123,7 +124,7 @@ if (!MONGODB_URI) {
   });
 }
 
-mongoose.connection.on("error", (err) => {
+mongoose.connection.on("error.pug", (err) => {
   console.log(`MongoDB connection error: ${err.message}. Please make sure MongoDB is running.`);
   process.exit(1);
 });

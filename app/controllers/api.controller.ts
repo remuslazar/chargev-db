@@ -49,11 +49,12 @@ export interface GetEventsResponse {
 }
 
 // API endpoints
-router.get('/events', async (req: AppRequest, res: Response, next: NextFunction) => {
+router.get('/events', async (req: Request, res: Response, next: NextFunction) => {
 
   const conditions: any[] = [];
+  const appReq = req as AppRequest;
 
-  setReadACLs(req.clientInfo, conditions);
+  setReadACLs(appReq.clientInfo, conditions);
 
   // changed-since option
   if (req.query['changed-since'] || req.query['change-token']) {
@@ -139,12 +140,13 @@ router.get('/events', async (req: AppRequest, res: Response, next: NextFunction)
 /**
  * fetch latest inserted (own) record
  */
-router.get('/events/latest', async (req: AppRequest, res: Response, next: NextFunction) => {
+router.get('/events/latest', async (req: Request, res: Response, next: NextFunction) => {
   const conditions: any[] = [];
 
-  setReadACLs(req.clientInfo, conditions);
+  const appReq = req as AppRequest;
+  setReadACLs(appReq.clientInfo, conditions);
 
-  conditions.push({source: req.clientInfo.source});
+  conditions.push({source: appReq.clientInfo.source});
 
   try {
     const queryConditions = { $and: conditions };
@@ -166,10 +168,11 @@ export interface DeleteEventsResponse {
   deletedRecordCount: number;
 }
 
-router.delete('/events', async (req: AppRequest, res: Response, next: NextFunction) => {
+router.delete('/events', async (req: Request, res: Response, next: NextFunction) => {
+  const appReq = req as AppRequest;
   try {
     const conditions: any[] = [];
-    setWriteACLs(req.clientInfo, conditions);
+    setWriteACLs(appReq.clientInfo, conditions);
     const response = await ChargeEvent.remove({$and: conditions}) as any;
     res.json(<DeleteEventsResponse>{
       deletedRecordCount: response.result.n,
@@ -190,14 +193,14 @@ export interface PostEventsResponse {
   deletedRecordCount: number;
 }
 
-router.post('/events', async (req: AppRequest, res: Response, next: NextFunction) => {
-
+router.post('/events', async (req: Request, res: Response, next: NextFunction) => {
+  const appReq = req as AppRequest;
   try {
     const eventsPayload = req.body as PostEventsPayload;
 
     let ChargeEventType: Model<any>;
-    switch (req.clientInfo.type) {
-      case 'CheckIn':
+    switch (appReq.clientInfo.type) {
+      case 'appReq':
         ChargeEventType = CheckIn;
         break;
       case 'Ladelog':
@@ -208,18 +211,18 @@ router.post('/events', async (req: AppRequest, res: Response, next: NextFunction
         break;
       default:
         // noinspection ExceptionCaughtLocallyJS
-        throw new Error(`ChargeEvent type: ${req.clientInfo.type} not valid`);
+        throw new Error(`ChargeEvent type: ${appReq.clientInfo.type} not valid`);
     }
 
     const writeConditions: any[] = [];
-    setWriteACLs(req.clientInfo, writeConditions);
+    setWriteACLs(appReq.clientInfo, writeConditions);
 
     let savedRecords: any[] = [];
     if (eventsPayload.recordsToSave) {
       const eventsToSave = eventsPayload.recordsToSave.map(eventData => {
 
         const newChargeEvent = new ChargeEventType(eventData);
-        newChargeEvent.source = req.clientInfo.source;
+        newChargeEvent.source = appReq.clientInfo.source;
         return newChargeEvent;
       });
       const insertedCheckIns = await ChargeEventType.insertMany(eventsToSave);

@@ -36,27 +36,28 @@ const getTokenfromHeaderOrQuerystring = (req: Request): string|null => {
  * @param {e.NextFunction} next
  * @returns {Promise<Response>}
  */
-export const jwtAuth = async (req: AppRequest, res: Response, next: NextFunction) => {
+export const jwtAuth = async (req: Request, res: Response, next: NextFunction) => {
   const authService = new JWTAuthService(app.get(API_JWT_SECRET));
 
   // check header or url parameters or post parameters for token
   const token = getTokenfromHeaderOrQuerystring(req);
+  const appReq = req as AppRequest;
 
   // decode token
   if (token) {
     try {
-      req.clientInfo = await authService.verifyAndDecode(token);
+      appReq.clientInfo = await authService.verifyAndDecode(token);
       next();
     } catch (err) {
-      req.authError = `Failed to authenticate token: ${err.toLocaleString()}`;
-      return res.status(403).send({ success: false, message: req.authError });
+      appReq.authError = `Failed to authenticate token: ${err.toLocaleString()}`;
+      return res.status(403).send({ success: false, message: appReq.authError });
     }
   } else {
     // if there is no token, return an error
-    req.authError = 'No auth token provided';
+    appReq.authError = 'No auth token provided';
     return res.status(403).send({
       success: false,
-      message: req.authError,
+      message: appReq.authError,
     });
   }
 
