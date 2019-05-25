@@ -16,7 +16,7 @@ Start the MongoDB in Docker:
 
 ```bash
 npm install
-docker-compose start db
+docker-compose up -d db
 export MONGODB_URI=mongodb://$(docker-machine ip default)/chargevdb
 ```
 
@@ -52,13 +52,13 @@ The current mongoDB User and Pass are stored in the `MONGODB_URI` config var (Se
 URI can be used.
 
 ```bash
-mongoexport --uri "$(heroku config:get MONGODB_URI)" -c chargeevents > chargeevents.jsonl 
+docker-compose exec db mongoexport --quiet --uri $(heroku config:get MONGODB_URI) -c chargeevents > chargeevents.jsonl
 ```
 
 ### Import a MongoDB Dump
 
 ```bash
-mongoimport --uri $MONGODB_URI --drop -c chargeevents chargeevents.jsonl 
+docker-compose exec -T db mongoimport -d chargevdb --drop -c chargeevents < chargeevents.jsonl 
 ```
 
 ## License
