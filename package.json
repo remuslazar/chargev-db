@@ -1,6 +1,6 @@
 {
   "name": "chargev-db",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "engines": {
     "node": "8.x.x"
   },
