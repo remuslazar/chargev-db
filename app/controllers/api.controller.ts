@@ -200,7 +200,7 @@ router.post('/events', async (req: Request, res: Response, next: NextFunction) =
 
     let ChargeEventType: Model<any>;
     switch (appReq.clientInfo.type) {
-      case 'appReq':
+      case 'CheckIn':
         ChargeEventType = CheckIn;
         break;
       case 'Ladelog':
