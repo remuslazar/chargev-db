@@ -66,6 +66,7 @@
     "mocha": "^5.2.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
-    "tslint": "^5.16.0"
+    "tslint": "^5.16.0",
+    "diff": ">=3.5.0"
   }
 }
