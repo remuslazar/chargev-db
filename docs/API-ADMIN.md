@@ -33,7 +33,13 @@ custom expire time (in seconds).
 The CLI also allows validation of existing tokens:
 
 ```bash
-./api-cli.ts --verify --token MY_TOKEN
+node build/api-cli.js --verify --token MY_TOKEN
 ```
 
 This will verify the given token and also print out the JWT content (payload).
+
+### Examples
+
+```bash
+node build/api-cli.js --generate --source 0 --type CKCheckIn --client chargEVApp --expires 307584000
+```
