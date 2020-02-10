@@ -2,7 +2,7 @@ import {NextFunction, Request, Response, Router} from "express";
 import {Error} from "../app";
 import {ChargeEvent, ChargeEventBase, CheckIn, CKCheckIn, Ladelog} from "../models/chargeevent.model";
 import {AppRequest, jwtAuth} from "../auth/jwt-auth.middleware";
-import {Model, ValidationError} from "mongoose";
+import {Model} from "mongoose";
 import {ObjectID} from "bson";
 import {APIClientInfo} from "../auth/jwt-auth.service";
 

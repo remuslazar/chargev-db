@@ -115,7 +115,11 @@ if (!MONGODB_URI) {
   process.exit(10);
 } else {
   mongoose.connect(MONGODB_URI, {
-    useMongoClient: true,
+    // see https://mongoosejs.com/docs/deprecations.html
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
   }, (err) => {
     if (err) {
       console.log(`MongoDB configuration error: ${err.message}.`);
